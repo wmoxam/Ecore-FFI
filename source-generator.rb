@@ -7,15 +7,21 @@ require 'uri'
 # expects a efl ffi source file with comments containing a URL on a single line, alone
 # will add any missing methods :D
 
-FILE_NAME = ARGV.first
+@file_name = ARGV[0]
+@version = ARGV[1]
 
 def rubyized_enum(text)
   # generally in the form 'enum _Ecore_Some_Enum'
-  text.gsub("enum ", "").gsub(/_|\s/, "")
+  rubyized = text.gsub("enum ", "").gsub(/_|\s/, "").gsub(/EinaBool/, ':boolean')
+  if rubyized.match(/Cb$/)
+    return ":#{text.gsub("enum ", "").gsub(/\s/, "").downcase}"
+  end
+
+  rubyized
 end
 
 def contains?(text)
-  `grep "#{text}" #{FILE_NAME}` != ""
+  `grep -E "#{text}" #{@file_name}` != ""
 end
 
 def map_type(type)
@@ -26,7 +32,7 @@ def map_type(type)
     ':pointer'
   when 'int', 'void', 'double', 'char', 'long'
     ":#{type}"
-  when 'unsigned int'
+  when 'unsigned int', 'pid_t'
     ':uint'
   when 'unsigned short'
     ':ushort'
@@ -36,7 +42,7 @@ def map_type(type)
   end
 end
 
-File.open(FILE_NAME, 'r').each_line do |line|
+File.open(@file_name, 'r').each_line do |line|
   puts line
   next unless line =~ /^\s*#/
 
@@ -45,7 +51,13 @@ File.open(FILE_NAME, 'r').each_line do |line|
 
   has_written_line = false
 
-  doc = Nokogiri::HTML(open(uri))
+  doc = begin
+    Nokogiri::HTML(open(uri))
+  rescue OpenURI::HTTPError
+    next
+  end
+
+  seen_methods = []
 
   doc.xpath("//table[@class='memname']").each do |definition|
     if definition.text =~ /^enum /
@@ -73,14 +85,16 @@ File.open(FILE_NAME, 'r').each_line do |line|
       end
 
       params = param_types.collect {|p| "#{map_type(p.text)}" }
+      params = [] if params.length == 1 && params[0] == ":void"
 
-      if contains?("attach_function :#{method_name},")
+      if contains?("soft_attach [0-9]+\\.[0-9]+, :#{method_name},") || seen_methods.include?(method_name)
         STDERR.puts "FOUND #{method_name}"
         next
       end 
 
       puts "" unless has_written_line
-      puts "  attach_function :#{method_name}, [#{params.join(', ')}], #{pointer.nil? ? map_type(return_value) : ':pointer'}"
+      puts "  soft_attach #{@version}, :#{method_name}, [#{params.join(', ')}], #{pointer.nil? ? map_type(return_value) : ':pointer'}"
+      seen_methods << method_name
       has_written_line = true
     end
   end
