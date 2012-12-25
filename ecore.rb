@@ -4,7 +4,7 @@ module Ecore
   extend FFI::Library
   ffi_lib 'ecore'
 
-  VERSIONS = [1.1]
+  VERSIONS = [1.2]
 
   private
   def self.soft_attach(version, method, *args)
@@ -101,6 +101,14 @@ module Ecore
 
   EcoreConUrlHttpVersion = enum(:V1_0, :V1_1)
 
+  EcoreEvasAvoidDamageType = enum(:none, :expose, :built_in)
+
+  EcoreEvasEngineType = enum(:software_buffer, :software_xlib, :xrender_x11, :opengl_x11, :software_xcb, :xrender_xcb, 
+                             :software_gdi, :software_ddraw, :direct3d, :opengl_glew, :cocoa, :software_sdl, :directfb,
+                             :software_fb, :software_8_x11, :software_16_x11, :software_16_ddraw, :software_16_wince, :opengl_sdl)
+
+  EcoreEvasObjectAssociateFlags = enum(:base, :stack, :layer, :del)
+
   EcoreFbInputDeviceCap = enum(:none, :relative, :absolute, :keys_or_buttons)
 
   EcoreIMFAutocapitalType = enum(:none, :word, :sentence, :allcharacter)
@@ -141,8 +149,8 @@ module Ecore
   # Ecore initialization and shutdown functions
   # http://localhost/ecore/group__Ecore__Init__Group.html
 
-  soft_attach 1.1, :ecore_init, [], :int
-  soft_attach 1.1, :ecore_shutdown, [], :int
+  soft_attach 1.2, :ecore_init, [], :int
+  soft_attach 1.2, :ecore_shutdown, [], :int
 
   # Main Loop and Job Functions
   # http://localhost/ecore/group__Ecore__Group.html
@@ -163,23 +171,37 @@ module Ecore
   callback :ecore_select_cb, [:int, :pointer, :pointer, :pointer, :pointer], :int
   callback :eina_free_cb, [:pointer], :pointer
 
+  # Ecore Job Functions
+  # http://localhost/ecore/group__Ecore__Job__Group.html
+
+  soft_attach 1.2, :ecore_job_add, [:ecore_cb, :pointer], :pointer
+  soft_attach 1.2, :ecore_job_del, [:pointer], :pointer
+
+  # Ecore Idle Functions
+  # http://localhost/ecore/group__Ecore__Idle__Group.html
+
+  # Ecore Throttle functions
+  # http://localhost/ecore/group__Ecore__Throttle__Group.html
+
+  soft_attach 1.2, :ecore_throttle_adjust, [:double], :void
+  soft_attach 1.2, :ecore_throttle_get, [], :double
 
   # Ecore Animator functions
   # http://localhost/ecore/group__Ecore__Animator__Group.html
 
-  soft_attach 1.1, :ecore_animator_add, [:ecore_task_cb, :pointer], :pointer
-  soft_attach 1.1, :ecore_animator_custom_source_tick_begin_callback_set, [:ecore_cb, :pointer], :void
-  soft_attach 1.1, :ecore_animator_custom_source_tick_end_callback_set, [:ecore_cb, :pointer], :void
-  soft_attach 1.1, :ecore_animator_custom_tick, [], :void
-  soft_attach 1.1, :ecore_animator_del, [:pointer], :pointer
-  soft_attach 1.1, :ecore_animator_frametime_get, [], :double
-  soft_attach 1.1, :ecore_animator_frametime_set, [:double], :void
-  soft_attach 1.1, :ecore_animator_freeze, [:pointer], :void
-  soft_attach 1.1, :ecore_animator_pos_map, [:double, EcorePosMap, :double, :double], :double
-  soft_attach 1.1, :ecore_animator_source_get, [], EcoreAnimatorSource
-  soft_attach 1.1, :ecore_animator_source_set, [EcoreAnimatorSource], :void
-  soft_attach 1.1, :ecore_animator_thaw, [:pointer], :void
-  soft_attach 1.1, :ecore_animator_timeline_add, [:double, :ecore_timeline_cb, :pointer], :pointer
+  soft_attach 1.2, :ecore_animator_add, [:ecore_task_cb, :pointer], :pointer
+  soft_attach 1.2, :ecore_animator_custom_source_tick_begin_callback_set, [:ecore_cb, :pointer], :void
+  soft_attach 1.2, :ecore_animator_custom_source_tick_end_callback_set, [:ecore_cb, :pointer], :void
+  soft_attach 1.2, :ecore_animator_custom_tick, [], :void
+  soft_attach 1.2, :ecore_animator_del, [:pointer], :pointer
+  soft_attach 1.2, :ecore_animator_frametime_get, [], :double
+  soft_attach 1.2, :ecore_animator_frametime_set, [:double], :void
+  soft_attach 1.2, :ecore_animator_freeze, [:pointer], :void
+  soft_attach 1.2, :ecore_animator_pos_map, [:double, EcorePosMap, :double, :double], :double
+  soft_attach 1.2, :ecore_animator_source_get, [], EcoreAnimatorSource
+  soft_attach 1.2, :ecore_animator_source_set, [EcoreAnimatorSource], :void
+  soft_attach 1.2, :ecore_animator_thaw, [:pointer], :void
+  soft_attach 1.2, :ecore_animator_timeline_add, [:double, :ecore_timeline_cb, :pointer], :pointer
 
 
   callback :task_cb, [:pointer], :pointer
@@ -191,26 +213,24 @@ module Ecore
   # Ecore Application functions
   # http://localhost/ecore/group__Ecore__Application__Group.html
 
-  soft_attach 1.1, :ecore_app_args_get, [:pointer, :pointer], :void
-  soft_attach 1.1, :ecore_app_args_set, [:int, :pointer], :void
-  soft_attach 1.1, :ecore_app_restart, [], :void
-
-
+  soft_attach 1.2, :ecore_app_args_get, [:pointer, :pointer], :void
+  soft_attach 1.2, :ecore_app_args_set, [:int, :pointer], :void
+  soft_attach 1.2, :ecore_app_restart, [], :void
 
   # Ecore Event functions
   # http://localhost/ecore/group__Ecore__Event__Group.html
 
-  soft_attach 1.1, :ecore_event_add, [:int, :pointer, :ecore_end_cb, :pointer], :pointer
-  soft_attach 1.1, :ecore_event_current_event_get, [], :pointer
-  soft_attach 1.1, :ecore_event_current_type_get, [], :int
-  soft_attach 1.1, :ecore_event_del, [:pointer], :pointer
-  soft_attach 1.1, :ecore_event_filter_add, [:ecore_data_cb, :ecore_filter_cb, :ecore_end_cb, :pointer], :pointer
-  soft_attach 1.1, :ecore_event_filter_del, [:pointer], :pointer
-  soft_attach 1.1, :ecore_event_handler_add, [:int, :ecore_event_handler_cb, :pointer], :pointer
-  soft_attach 1.1, :ecore_event_handler_data_get, [:pointer], :pointer
-  soft_attach 1.1, :ecore_event_handler_data_set, [:pointer, :pointer], :pointer
-  soft_attach 1.1, :ecore_event_handler_del, [:pointer], :pointer
-  soft_attach 1.1, :ecore_event_type_new, [], :int
+  soft_attach 1.2, :ecore_event_add, [:int, :pointer, :ecore_end_cb, :pointer], :pointer
+  soft_attach 1.2, :ecore_event_current_event_get, [], :pointer
+  soft_attach 1.2, :ecore_event_current_type_get, [], :int
+  soft_attach 1.2, :ecore_event_del, [:pointer], :pointer
+  soft_attach 1.2, :ecore_event_filter_add, [:ecore_data_cb, :ecore_filter_cb, :ecore_end_cb, :pointer], :pointer
+  soft_attach 1.2, :ecore_event_filter_del, [:pointer], :pointer
+  soft_attach 1.2, :ecore_event_handler_add, [:int, :ecore_event_handler_cb, :pointer], :pointer
+  soft_attach 1.2, :ecore_event_handler_data_get, [:pointer], :pointer
+  soft_attach 1.2, :ecore_event_handler_data_set, [:pointer, :pointer], :pointer
+  soft_attach 1.2, :ecore_event_handler_del, [:pointer], :pointer
+  soft_attach 1.2, :ecore_event_type_new, [], :int
 
 
   callback :end_cb, [:pointer, :pointer], :pointer
@@ -223,32 +243,32 @@ module Ecore
   # Process Spawning Functions
   # http://localhost/ecore/group__Ecore__Exe__Group.html
 
-  soft_attach 1.1, :ecore_exe_auto_limits_set, [:pointer, :int, :int, :int, :int], :void
-  soft_attach 1.1, :ecore_exe_callback_pre_free_set, [:pointer, :ecore_exe_cb], :void
-  soft_attach 1.1, :ecore_exe_close_stdin, [:pointer], :void
-  soft_attach 1.1, :ecore_exe_cmd_get, [:pointer], :pointer
-  soft_attach 1.1, :ecore_exe_continue, [:pointer], :void
-  soft_attach 1.1, :ecore_exe_data_get, [:pointer], :pointer
-  soft_attach 1.1, :ecore_exe_data_set, [:pointer, :pointer], :pointer
-  soft_attach 1.1, :ecore_exe_event_data_free, [:pointer], :void
-  soft_attach 1.1, :ecore_exe_event_data_get, [:pointer, EcoreExeFlags], :pointer
-  soft_attach 1.1, :ecore_exe_flags_get, [:pointer], EcoreExeFlags
-  soft_attach 1.1, :ecore_exe_free, [:pointer], :pointer
-  soft_attach 1.1, :ecore_exe_hup, [:pointer], :void
-  soft_attach 1.1, :ecore_exe_interrupt, [:pointer], :void
-  soft_attach 1.1, :ecore_exe_kill, [:pointer], :void
-  soft_attach 1.1, :ecore_exe_pause, [:pointer], :void
-  soft_attach 1.1, :ecore_exe_pid_get, [:pointer], :uint
-  soft_attach 1.1, :ecore_exe_pipe_run, [:pointer, EcoreExeFlags, :pointer], :pointer
-  soft_attach 1.1, :ecore_exe_quit, [:pointer], :void
-  soft_attach 1.1, :ecore_exe_run, [:pointer, :pointer], :pointer
-  soft_attach 1.1, :ecore_exe_run_priority_get, [], :int
-  soft_attach 1.1, :ecore_exe_run_priority_set, [:int], :void
-  soft_attach 1.1, :ecore_exe_send, [:pointer, :pointer, :int], :boolean
-  soft_attach 1.1, :ecore_exe_signal, [:pointer, :int], :void
-  soft_attach 1.1, :ecore_exe_tag_get, [:pointer], :pointer
-  soft_attach 1.1, :ecore_exe_tag_set, [:pointer, :pointer], :void
-  soft_attach 1.1, :ecore_exe_terminate, [:pointer], :void
+  soft_attach 1.2, :ecore_exe_auto_limits_set, [:pointer, :int, :int, :int, :int], :void
+  soft_attach 1.2, :ecore_exe_callback_pre_free_set, [:pointer, :ecore_exe_cb], :void
+  soft_attach 1.2, :ecore_exe_close_stdin, [:pointer], :void
+  soft_attach 1.2, :ecore_exe_cmd_get, [:pointer], :pointer
+  soft_attach 1.2, :ecore_exe_continue, [:pointer], :void
+  soft_attach 1.2, :ecore_exe_data_get, [:pointer], :pointer
+  soft_attach 1.2, :ecore_exe_data_set, [:pointer, :pointer], :pointer
+  soft_attach 1.2, :ecore_exe_event_data_free, [:pointer], :void
+  soft_attach 1.2, :ecore_exe_event_data_get, [:pointer, EcoreExeFlags], :pointer
+  soft_attach 1.2, :ecore_exe_flags_get, [:pointer], EcoreExeFlags
+  soft_attach 1.2, :ecore_exe_free, [:pointer], :pointer
+  soft_attach 1.2, :ecore_exe_hup, [:pointer], :void
+  soft_attach 1.2, :ecore_exe_interrupt, [:pointer], :void
+  soft_attach 1.2, :ecore_exe_kill, [:pointer], :void
+  soft_attach 1.2, :ecore_exe_pause, [:pointer], :void
+  soft_attach 1.2, :ecore_exe_pid_get, [:pointer], :uint
+  soft_attach 1.2, :ecore_exe_pipe_run, [:pointer, EcoreExeFlags, :pointer], :pointer
+  soft_attach 1.2, :ecore_exe_quit, [:pointer], :void
+  soft_attach 1.2, :ecore_exe_run, [:pointer, :pointer], :pointer
+  soft_attach 1.2, :ecore_exe_run_priority_get, [], :int
+  soft_attach 1.2, :ecore_exe_run_priority_set, [:int], :void
+  soft_attach 1.2, :ecore_exe_send, [:pointer, :pointer, :int], :boolean
+  soft_attach 1.2, :ecore_exe_signal, [:pointer, :int], :void
+  soft_attach 1.2, :ecore_exe_tag_get, [:pointer], :pointer
+  soft_attach 1.2, :ecore_exe_tag_set, [:pointer, :pointer], :void
+  soft_attach 1.2, :ecore_exe_terminate, [:pointer], :void
 
 
   callback :exe_cb, [:pointer, :pointer], :pointer
@@ -256,40 +276,40 @@ module Ecore
   # Ecore Timer functions
   # http://localhost/ecore/group__Ecore__Timer__Group.html
 
-  soft_attach 1.1, :ecore_timer_add, [:double, :ecore_task_cb, :pointer], :pointer
-  soft_attach 1.1, :ecore_timer_del, [:pointer], :pointer
-  soft_attach 1.1, :ecore_timer_delay, [:pointer, :double], :void
-  soft_attach 1.1, :ecore_timer_freeze, [:pointer], :void
-  soft_attach 1.1, :ecore_timer_interval_get, [:pointer], :double
-  soft_attach 1.1, :ecore_timer_interval_set, [:pointer, :double], :void
-  soft_attach 1.1, :ecore_timer_loop_add, [:double, :ecore_task_cb, :pointer], :pointer
-  soft_attach 1.1, :ecore_timer_pending_get, [:pointer], :double
-  soft_attach 1.1, :ecore_timer_precision_get, [], :double
-  soft_attach 1.1, :ecore_timer_precision_set, [:double], :void
-  soft_attach 1.1, :ecore_timer_reset, [:pointer], :void
-  soft_attach 1.1, :ecore_timer_thaw, [:pointer], :void
+  soft_attach 1.2, :ecore_timer_add, [:double, :ecore_task_cb, :pointer], :pointer
+  soft_attach 1.2, :ecore_timer_del, [:pointer], :pointer
+  soft_attach 1.2, :ecore_timer_delay, [:pointer, :double], :void
+  soft_attach 1.2, :ecore_timer_freeze, [:pointer], :void
+  soft_attach 1.2, :ecore_timer_interval_get, [:pointer], :double
+  soft_attach 1.2, :ecore_timer_interval_set, [:pointer, :double], :void
+  soft_attach 1.2, :ecore_timer_loop_add, [:double, :ecore_task_cb, :pointer], :pointer
+  soft_attach 1.2, :ecore_timer_pending_get, [:pointer], :double
+  soft_attach 1.2, :ecore_timer_precision_get, [], :double
+  soft_attach 1.2, :ecore_timer_precision_set, [:double], :void
+  soft_attach 1.2, :ecore_timer_reset, [:pointer], :void
+  soft_attach 1.2, :ecore_timer_thaw, [:pointer], :void
 
 
   # Ecore Main Loop functions
   # http://localhost/ecore/group__Ecore__Main__Loop__Group.html
 
-  soft_attach 1.1, :ecore_main_fd_handler_active_get, [:pointer, EcoreFdHandlerFlags], :boolean
-  soft_attach 1.1, :ecore_main_fd_handler_active_set, [:pointer, EcoreFdHandlerFlags], :void
-  soft_attach 1.1, :ecore_main_fd_handler_add, [:int, EcoreFdHandlerFlags, :ecore_fd_cb, :pointer, :ecore_fd_cb, :pointer], :pointer
-  soft_attach 1.1, :ecore_main_fd_handler_del, [:pointer], :pointer
-  soft_attach 1.1, :ecore_main_fd_handler_fd_get, [:pointer], :int
-  soft_attach 1.1, :ecore_main_fd_handler_prepare_callback_set, [:pointer, :ecore_fd_prep_cb, :pointer], :void
-  soft_attach 1.1, :ecore_main_loop_begin, [], :void
-  soft_attach 1.1, :ecore_main_loop_glib_always_integrate_disable, [], :void
-  soft_attach 1.1, :ecore_main_loop_glib_integrate, [], :boolean
-  soft_attach 1.1, :ecore_main_loop_iterate, [], :void
-  soft_attach 1.1, :ecore_main_loop_iterate_may_block, [:int], :int
-  soft_attach 1.1, :ecore_main_loop_quit, [], :void
-  soft_attach 1.1, :ecore_main_loop_select_func_set, [:ecore_select_function], :void
-  soft_attach 1.1, :ecore_main_loop_thread_safe_call_async, [:ecore_cb, :pointer], :void
-  soft_attach 1.1, :ecore_main_loop_thread_safe_call_sync, [:ecore_data_cb, :pointer], :pointer
-  soft_attach 1.1, :ecore_thread_main_loop_begin, [], :int
-  soft_attach 1.1, :ecore_thread_main_loop_end, [], :int
+  soft_attach 1.2, :ecore_main_fd_handler_active_get, [:pointer, EcoreFdHandlerFlags], :boolean
+  soft_attach 1.2, :ecore_main_fd_handler_active_set, [:pointer, EcoreFdHandlerFlags], :void
+  soft_attach 1.2, :ecore_main_fd_handler_add, [:int, EcoreFdHandlerFlags, :ecore_fd_cb, :pointer, :ecore_fd_cb, :pointer], :pointer
+  soft_attach 1.2, :ecore_main_fd_handler_del, [:pointer], :pointer
+  soft_attach 1.2, :ecore_main_fd_handler_fd_get, [:pointer], :int
+  soft_attach 1.2, :ecore_main_fd_handler_prepare_callback_set, [:pointer, :ecore_fd_prep_cb, :pointer], :void
+  soft_attach 1.2, :ecore_main_loop_begin, [], :void
+  soft_attach 1.2, :ecore_main_loop_glib_always_integrate_disable, [], :void
+  soft_attach 1.2, :ecore_main_loop_glib_integrate, [], :boolean
+  soft_attach 1.2, :ecore_main_loop_iterate, [], :void
+  soft_attach 1.2, :ecore_main_loop_iterate_may_block, [:int], :int
+  soft_attach 1.2, :ecore_main_loop_quit, [], :void
+  soft_attach 1.2, :ecore_main_loop_select_func_set, [:ecore_select_function], :void
+  soft_attach 1.2, :ecore_main_loop_thread_safe_call_async, [:ecore_cb, :pointer], :void
+  soft_attach 1.2, :ecore_main_loop_thread_safe_call_sync, [:ecore_data_cb, :pointer], :pointer
+  soft_attach 1.2, :ecore_thread_main_loop_begin, [], :int
+  soft_attach 1.2, :ecore_thread_main_loop_end, [], :int
 
 
   callback :fd_prep_cb, [:pointer, :pointer], :pointer
@@ -298,12 +318,12 @@ module Ecore
   # File Event Handling Functions
   # http://localhost/ecore/group__Ecore__FD__Handler__Group.html
 
-  soft_attach 1.1, :ecore_main_fd_handler_active_get, [:pointer, EcoreFdHandlerFlags], :boolean
-  soft_attach 1.1, :ecore_main_fd_handler_active_set, [:pointer, EcoreFdHandlerFlags], :void
-  soft_attach 1.1, :ecore_main_fd_handler_add, [:int, EcoreFdHandlerFlags, :ecore_fd_cb, :pointer, :ecore_fd_cb, :pointer], :pointer
-  soft_attach 1.1, :ecore_main_fd_handler_del, [:pointer], :pointer
-  soft_attach 1.1, :ecore_main_fd_handler_fd_get, [:pointer], :int
-  soft_attach 1.1, :ecore_main_fd_handler_prepare_callback_set, [:pointer, :ecore_fd_prep_cb, :pointer], :void
+  soft_attach 1.2, :ecore_main_fd_handler_active_get, [:pointer, EcoreFdHandlerFlags], :boolean
+  soft_attach 1.2, :ecore_main_fd_handler_active_set, [:pointer, EcoreFdHandlerFlags], :void
+  soft_attach 1.2, :ecore_main_fd_handler_add, [:int, EcoreFdHandlerFlags, :ecore_fd_cb, :pointer, :ecore_fd_cb, :pointer], :pointer
+  soft_attach 1.2, :ecore_main_fd_handler_del, [:pointer], :pointer
+  soft_attach 1.2, :ecore_main_fd_handler_fd_get, [:pointer], :int
+  soft_attach 1.2, :ecore_main_fd_handler_prepare_callback_set, [:pointer, :ecore_fd_prep_cb, :pointer], :void
 
 
   callback :fd_cb, [:pointer, :pointer], :pointer
@@ -312,13 +332,13 @@ module Ecore
   # Ecore Idle functions
   # http://localhost/ecore/group__Ecore__Idle__Group.html
 
-  soft_attach 1.1, :ecore_idle_enterer_add, [:ecore_task_cb, :pointer], :pointer
-  soft_attach 1.1, :ecore_idle_enterer_before_add, [:ecore_task_cb, :pointer], :pointer
-  soft_attach 1.1, :ecore_idle_enterer_del, [:pointer], :pointer
-  soft_attach 1.1, :ecore_idle_exiter_add, [:ecore_task_cb, :pointer], :pointer
-  soft_attach 1.1, :ecore_idle_exiter_del, [:pointer], :pointer
-  soft_attach 1.1, :ecore_idler_add, [:ecore_task_cb, :pointer], :pointer
-  soft_attach 1.1, :ecore_idler_del, [:pointer], :pointer
+  soft_attach 1.2, :ecore_idle_enterer_add, [:ecore_task_cb, :pointer], :pointer
+  soft_attach 1.2, :ecore_idle_enterer_before_add, [:ecore_task_cb, :pointer], :pointer
+  soft_attach 1.2, :ecore_idle_enterer_del, [:pointer], :pointer
+  soft_attach 1.2, :ecore_idle_exiter_add, [:ecore_task_cb, :pointer], :pointer
+  soft_attach 1.2, :ecore_idle_exiter_del, [:pointer], :pointer
+  soft_attach 1.2, :ecore_idler_add, [:ecore_task_cb, :pointer], :pointer
+  soft_attach 1.2, :ecore_idler_del, [:pointer], :pointer
 
 
 
@@ -326,207 +346,382 @@ module Ecore
   # Pipe wrapper
   # http://localhost/ecore/group__Ecore__Pipe__Group.html
 
-  soft_attach 1.1, :ecore_pipe_add, [:ecore_pipe_cb, :pointer], :pointer
-  soft_attach 1.1, :ecore_pipe_del, [:pointer], :pointer
-  soft_attach 1.1, :ecore_pipe_freeze, [:pointer], :void
-  soft_attach 1.1, :ecore_pipe_read_close, [:pointer], :void
-  soft_attach 1.1, :ecore_pipe_thaw, [:pointer], :void
-  soft_attach 1.1, :ecore_pipe_wait, [:pointer, :int, :double], :int
-  soft_attach 1.1, :ecore_pipe_write, [:pointer, :pointer, :uint], :boolean
-  soft_attach 1.1, :ecore_pipe_write_close, [:pointer], :void
+  soft_attach 1.2, :ecore_pipe_add, [:ecore_pipe_cb, :pointer], :pointer
+  soft_attach 1.2, :ecore_pipe_del, [:pointer], :pointer
+  soft_attach 1.2, :ecore_pipe_freeze, [:pointer], :void
+  soft_attach 1.2, :ecore_pipe_read_close, [:pointer], :void
+  soft_attach 1.2, :ecore_pipe_thaw, [:pointer], :void
+  soft_attach 1.2, :ecore_pipe_wait, [:pointer, :int, :double], :int
+  soft_attach 1.2, :ecore_pipe_write, [:pointer, :pointer, :uint], :boolean
+  soft_attach 1.2, :ecore_pipe_write_close, [:pointer], :void
 
 
   # Ecore Poll functions
   # http://localhost/ecore/group__Ecore__Poller__Group.html
 
-  soft_attach 1.1, :ecore_poller_add, [EcorePollerType, :int, :ecore_task_cb, :pointer], :pointer
-  soft_attach 1.1, :ecore_poller_del, [:pointer], :pointer
-  soft_attach 1.1, :ecore_poller_poll_interval_get, [EcorePollerType], :double
-  soft_attach 1.1, :ecore_poller_poll_interval_set, [EcorePollerType, :double], :void
-  soft_attach 1.1, :ecore_poller_poller_interval_get, [:pointer], :int
-  soft_attach 1.1, :ecore_poller_poller_interval_set, [:pointer, :int], :boolean
+  soft_attach 1.2, :ecore_poller_add, [EcorePollerType, :int, :ecore_task_cb, :pointer], :pointer
+  soft_attach 1.2, :ecore_poller_del, [:pointer], :pointer
+  soft_attach 1.2, :ecore_poller_poll_interval_get, [EcorePollerType], :double
+  soft_attach 1.2, :ecore_poller_poll_interval_set, [EcorePollerType, :double], :void
+  soft_attach 1.2, :ecore_poller_poller_interval_get, [:pointer], :int
+  soft_attach 1.2, :ecore_poller_poller_interval_set, [:pointer, :int], :boolean
 
 
 
   # Ecore Thread functions
   # http://localhost/ecore/group__Ecore__Thread__Group.html
 
-  soft_attach 1.1, :ecore_thread_active_get, [], :int
-  soft_attach 1.1, :ecore_thread_available_get, [], :int
-  soft_attach 1.1, :ecore_thread_cancel, [:pointer], :boolean
-  soft_attach 1.1, :ecore_thread_check, [:pointer], :boolean
-  soft_attach 1.1, :ecore_thread_feedback, [:pointer, :pointer], :boolean
-  soft_attach 1.1, :ecore_thread_feedback_run, [:ecore_thread_cb, :ecore_thread_notify_cb, :ecore_thread_cb, :ecore_thread_cb, :pointer, :boolean], :pointer
-  soft_attach 1.1, :ecore_thread_global_data_add, [:pointer, :pointer, :eina_free_cb, :boolean], :boolean
-  soft_attach 1.1, :ecore_thread_global_data_del, [:pointer], :boolean
-  soft_attach 1.1, :ecore_thread_global_data_find, [:pointer], :pointer
-  soft_attach 1.1, :ecore_thread_global_data_set, [:pointer, :pointer, :eina_free_cb], :pointer
-  soft_attach 1.1, :ecore_thread_global_data_wait, [:pointer, :double], :pointer
-  soft_attach 1.1, :ecore_thread_local_data_add, [:pointer, :pointer, :pointer, :eina_free_cb, :boolean], :boolean
-  soft_attach 1.1, :ecore_thread_local_data_del, [:pointer, :pointer], :boolean
-  soft_attach 1.1, :ecore_thread_local_data_find, [:pointer, :pointer], :pointer
-  soft_attach 1.1, :ecore_thread_local_data_set, [:pointer, :pointer, :pointer, :eina_free_cb], :pointer
-  soft_attach 1.1, :ecore_thread_max_get, [], :int
-  soft_attach 1.1, :ecore_thread_max_reset, [], :void
-  soft_attach 1.1, :ecore_thread_max_set, [:int], :void
-  soft_attach 1.1, :ecore_thread_pending_feedback_get, [], :int
-  soft_attach 1.1, :ecore_thread_pending_get, [], :int
-  soft_attach 1.1, :ecore_thread_pending_total_get, [], :int
-  soft_attach 1.1, :ecore_thread_reschedule, [:pointer], :boolean
-  soft_attach 1.1, :ecore_thread_run, [:ecore_thread_cb, :ecore_thread_cb, :ecore_thread_cb, :pointer], :pointer
+  soft_attach 1.2, :ecore_thread_active_get, [], :int
+  soft_attach 1.2, :ecore_thread_available_get, [], :int
+  soft_attach 1.2, :ecore_thread_cancel, [:pointer], :boolean
+  soft_attach 1.2, :ecore_thread_check, [:pointer], :boolean
+  soft_attach 1.2, :ecore_thread_feedback, [:pointer, :pointer], :boolean
+  soft_attach 1.2, :ecore_thread_feedback_run, [:ecore_thread_cb, :ecore_thread_notify_cb, :ecore_thread_cb, :ecore_thread_cb, :pointer, :boolean], :pointer
+  soft_attach 1.2, :ecore_thread_global_data_add, [:pointer, :pointer, :eina_free_cb, :boolean], :boolean
+  soft_attach 1.2, :ecore_thread_global_data_del, [:pointer], :boolean
+  soft_attach 1.2, :ecore_thread_global_data_find, [:pointer], :pointer
+  soft_attach 1.2, :ecore_thread_global_data_set, [:pointer, :pointer, :eina_free_cb], :pointer
+  soft_attach 1.2, :ecore_thread_global_data_wait, [:pointer, :double], :pointer
+  soft_attach 1.2, :ecore_thread_local_data_add, [:pointer, :pointer, :pointer, :eina_free_cb, :boolean], :boolean
+  soft_attach 1.2, :ecore_thread_local_data_del, [:pointer, :pointer], :boolean
+  soft_attach 1.2, :ecore_thread_local_data_find, [:pointer, :pointer], :pointer
+  soft_attach 1.2, :ecore_thread_local_data_set, [:pointer, :pointer, :pointer, :eina_free_cb], :pointer
+  soft_attach 1.2, :ecore_thread_max_get, [], :int
+  soft_attach 1.2, :ecore_thread_max_reset, [], :void
+  soft_attach 1.2, :ecore_thread_max_set, [:int], :void
+  soft_attach 1.2, :ecore_thread_pending_feedback_get, [], :int
+  soft_attach 1.2, :ecore_thread_pending_get, [], :int
+  soft_attach 1.2, :ecore_thread_pending_total_get, [], :int
+  soft_attach 1.2, :ecore_thread_reschedule, [:pointer], :boolean
+  soft_attach 1.2, :ecore_thread_run, [:ecore_thread_cb, :ecore_thread_cb, :ecore_thread_cb, :pointer], :pointer
 
 
 
   # Ecore Time functions
   # http://localhost/ecore/group__Ecore__Time__Group.html
 
-  soft_attach 1.1, :ecore_loop_time_get, [], :double
-  soft_attach 1.1, :ecore_time_get, [], :double
-  soft_attach 1.1, :ecore_time_unix_get, [], :double
+  soft_attach 1.2, :ecore_loop_time_get, [], :double
+  soft_attach 1.2, :ecore_time_get, [], :double
+  soft_attach 1.2, :ecore_time_unix_get, [], :double
 
 
   callback :ecore_task_cb, [:pointer], :int
 
 
-  # Loop_Group Ecore Main Loop functions
-  # http://localhost/ecore/group__Ecore__Main.html
-
-
   # Ecore Connection Library Functions
   # http://localhost/ecore/group__Ecore__Con__Lib__Group.html
 
-  soft_attach 1.1, :ecore_con_init, [], :int
-  soft_attach 1.1, :ecore_con_lookup, [:pointer, :ecore_con_dns_cb, :pointer], :boolean
-  soft_attach 1.1, :ecore_con_shutdown, [], :int
-
-
+  soft_attach 1.2, :ecore_con_init, [], :int
+  soft_attach 1.2, :ecore_con_lookup, [:pointer, :ecore_con_dns_cb, :pointer], :boolean
+  soft_attach 1.2, :ecore_con_shutdown, [], :int
 
   # Ecore Connection Server Functions
   # http://localhost/ecore/group__Ecore__Con__Server__Group.html
 
-  soft_attach 1.1, :ecore_con_client_fd_get, [:pointer], :int
-  soft_attach 1.1, :ecore_con_server_add, [EcoreConType, :pointer, :int, :pointer], :pointer
-  soft_attach 1.1, :ecore_con_server_client_limit_set, [:pointer, :int, :char], :void
-  soft_attach 1.1, :ecore_con_server_clients_get, [:pointer], :pointer
-  soft_attach 1.1, :ecore_con_server_connect, [EcoreConType, :pointer, :int, :pointer], :pointer
-  soft_attach 1.1, :ecore_con_server_connected_get, [:pointer], :boolean
-  soft_attach 1.1, :ecore_con_server_data_get, [:pointer], :pointer
-  soft_attach 1.1, :ecore_con_server_data_set, [:pointer, :pointer], :pointer
-  soft_attach 1.1, :ecore_con_server_del, [:pointer], :pointer
-  soft_attach 1.1, :ecore_con_server_fd_get, [:pointer], :int
-  soft_attach 1.1, :ecore_con_server_flush, [:pointer], :void
-  soft_attach 1.1, :ecore_con_server_ip_get, [:pointer], :pointer
-  soft_attach 1.1, :ecore_con_server_name_get, [:pointer], :pointer
-  soft_attach 1.1, :ecore_con_server_port_get, [:pointer], :int
-  soft_attach 1.1, :ecore_con_server_send, [:pointer, :pointer, :int], :int
-  soft_attach 1.1, :ecore_con_server_timeout_get, [:pointer], :double
-  soft_attach 1.1, :ecore_con_server_timeout_set, [:pointer, :double], :void
-  soft_attach 1.1, :ecore_con_server_uptime_get, [:pointer], :double
+  soft_attach 1.2, :ecore_con_client_fd_get, [:pointer], :int
+  soft_attach 1.2, :ecore_con_server_add, [EcoreConType, :pointer, :int, :pointer], :pointer
+  soft_attach 1.2, :ecore_con_server_client_limit_set, [:pointer, :int, :char], :void
+  soft_attach 1.2, :ecore_con_server_clients_get, [:pointer], :pointer
+  soft_attach 1.2, :ecore_con_server_connect, [EcoreConType, :pointer, :int, :pointer], :pointer
+  soft_attach 1.2, :ecore_con_server_connected_get, [:pointer], :boolean
+  soft_attach 1.2, :ecore_con_server_data_get, [:pointer], :pointer
+  soft_attach 1.2, :ecore_con_server_data_set, [:pointer, :pointer], :pointer
+  soft_attach 1.2, :ecore_con_server_del, [:pointer], :pointer
+  soft_attach 1.2, :ecore_con_server_fd_get, [:pointer], :int
+  soft_attach 1.2, :ecore_con_server_flush, [:pointer], :void
+  soft_attach 1.2, :ecore_con_server_ip_get, [:pointer], :pointer
+  soft_attach 1.2, :ecore_con_server_name_get, [:pointer], :pointer
+  soft_attach 1.2, :ecore_con_server_port_get, [:pointer], :int
+  soft_attach 1.2, :ecore_con_server_send, [:pointer, :pointer, :int], :int
+  soft_attach 1.2, :ecore_con_server_timeout_get, [:pointer], :double
+  soft_attach 1.2, :ecore_con_server_timeout_set, [:pointer, :double], :void
+  soft_attach 1.2, :ecore_con_server_uptime_get, [:pointer], :double
 
 
 
   # Ecore Connection Client Functions
   # http://localhost/ecore/group__Ecore__Con__Client__Group.html
 
-  soft_attach 1.1, :ecore_con_client_connected_get, [:pointer], :boolean
-  soft_attach 1.1, :ecore_con_client_data_get, [:pointer], :pointer
-  soft_attach 1.1, :ecore_con_client_data_set, [:pointer, :pointer], :void
-  soft_attach 1.1, :ecore_con_client_del, [:pointer], :pointer
-  soft_attach 1.1, :ecore_con_client_fd_get, [:pointer], :int
-  soft_attach 1.1, :ecore_con_client_flush, [:pointer], :void
-  soft_attach 1.1, :ecore_con_client_ip_get, [:pointer], :pointer
-  soft_attach 1.1, :ecore_con_client_port_get, [:pointer], :int
-  soft_attach 1.1, :ecore_con_client_send, [:pointer, :pointer, :int], :int
-  soft_attach 1.1, :ecore_con_client_server_get, [:pointer], :pointer
-  soft_attach 1.1, :ecore_con_client_timeout_get, [:pointer], :double
-  soft_attach 1.1, :ecore_con_client_timeout_set, [:pointer, :double], :void
-  soft_attach 1.1, :ecore_con_client_uptime_get, [:pointer], :double
-  soft_attach 1.1, :ecore_con_server_fd_get, [:pointer], :int
-  soft_attach 1.1, :ecore_con_ssl_available_get, [], :int
-  soft_attach 1.1, :ecore_ipc_ssl_available_get, [], :int
+  soft_attach 1.2, :ecore_con_client_connected_get, [:pointer], :boolean
+  soft_attach 1.2, :ecore_con_client_data_get, [:pointer], :pointer
+  soft_attach 1.2, :ecore_con_client_data_set, [:pointer, :pointer], :void
+  soft_attach 1.2, :ecore_con_client_del, [:pointer], :pointer
+  soft_attach 1.2, :ecore_con_client_fd_get, [:pointer], :int
+  soft_attach 1.2, :ecore_con_client_flush, [:pointer], :void
+  soft_attach 1.2, :ecore_con_client_ip_get, [:pointer], :pointer
+  soft_attach 1.2, :ecore_con_client_port_get, [:pointer], :int
+  soft_attach 1.2, :ecore_con_client_send, [:pointer, :pointer, :int], :int
+  soft_attach 1.2, :ecore_con_client_server_get, [:pointer], :pointer
+  soft_attach 1.2, :ecore_con_client_timeout_get, [:pointer], :double
+  soft_attach 1.2, :ecore_con_client_timeout_set, [:pointer, :double], :void
+  soft_attach 1.2, :ecore_con_client_uptime_get, [:pointer], :double
+  soft_attach 1.2, :ecore_con_server_fd_get, [:pointer], :int
+  soft_attach 1.2, :ecore_con_ssl_available_get, [], :int
+  soft_attach 1.2, :ecore_ipc_ssl_available_get, [], :int
 
 
 
   # Ecore URL Connection Functions
   # http://localhost/ecore/group__Ecore__Con__Url__Group.html
 
-  soft_attach 1.1, :ecore_con_url_additional_header_add, [:pointer, :pointer, :pointer], :void
-  soft_attach 1.1, :ecore_con_url_additional_headers_clear, [:pointer], :void
-  soft_attach 1.1, :ecore_con_url_cookies_clear, [:pointer], :void
-  soft_attach 1.1, :ecore_con_url_cookies_file_add, [:pointer, :pointer], :void
-  soft_attach 1.1, :ecore_con_url_cookies_ignore_old_session_set, [:pointer, :boolean], :void
-  soft_attach 1.1, :ecore_con_url_cookies_init, [:pointer], :void
-  soft_attach 1.1, :ecore_con_url_cookies_jar_file_set, [:pointer, :pointer], :boolean
-  soft_attach 1.1, :ecore_con_url_cookies_jar_write, [:pointer], :void
-  soft_attach 1.1, :ecore_con_url_cookies_session_clear, [:pointer], :void
-  soft_attach 1.1, :ecore_con_url_custom_new, [:pointer, :pointer], :pointer
-  soft_attach 1.1, :ecore_con_url_data_get, [:pointer], :pointer
-  soft_attach 1.1, :ecore_con_url_data_set, [:pointer, :pointer], :void
-  soft_attach 1.1, :ecore_con_url_fd_set, [:pointer, :int], :void
-  soft_attach 1.1, :ecore_con_url_free, [:pointer], :void
-  soft_attach 1.1, :ecore_con_url_ftp_upload, [:pointer, :pointer, :pointer, :pointer, :pointer], :boolean
-  soft_attach 1.1, :ecore_con_url_ftp_use_epsv_set, [:pointer, :boolean], :void
-  soft_attach 1.1, :ecore_con_url_get, [:pointer], :boolean
-  soft_attach 1.1, :ecore_con_url_http_version_set, [:pointer, EcoreConUrlHttpVersion], :boolean
-  soft_attach 1.1, :ecore_con_url_httpauth_set, [:pointer, :pointer, :pointer, :boolean], :boolean
-  soft_attach 1.1, :ecore_con_url_init, [], :int
-  soft_attach 1.1, :ecore_con_url_new, [:pointer], :pointer
-  soft_attach 1.1, :ecore_con_url_pipeline_get, [], :boolean
-  soft_attach 1.1, :ecore_con_url_pipeline_set, [:boolean], :void
-  soft_attach 1.1, :ecore_con_url_post, [:pointer, :pointer, :long, :pointer], :boolean
-  soft_attach 1.1, :ecore_con_url_proxy_password_set, [:pointer, :pointer], :boolean
-  soft_attach 1.1, :ecore_con_url_proxy_set, [:pointer, :pointer], :boolean
-  soft_attach 1.1, :ecore_con_url_proxy_username_set, [:pointer, :pointer], :boolean
-  soft_attach 1.1, :ecore_con_url_received_bytes_get, [:pointer], :int
-  soft_attach 1.1, :ecore_con_url_response_headers_get, [:pointer], :pointer
-  soft_attach 1.1, :ecore_con_url_shutdown, [], :int
-  soft_attach 1.1, :ecore_con_url_ssl_ca_set, [:pointer, :pointer], :int
-  soft_attach 1.1, :ecore_con_url_ssl_verify_peer_set, [:pointer, :boolean], :void
-  soft_attach 1.1, :ecore_con_url_status_code_get, [:pointer], :int
-  soft_attach 1.1, :ecore_con_url_time, [:pointer, EcoreConUrlTime, :double], :void
-  soft_attach 1.1, :ecore_con_url_timeout_set, [:pointer, :double], :void
-  soft_attach 1.1, :ecore_con_url_url_get, [:pointer], :pointer
-  soft_attach 1.1, :ecore_con_url_url_set, [:pointer, :pointer], :boolean
-  soft_attach 1.1, :ecore_con_url_verbose_set, [:pointer, :boolean], :void
+  soft_attach 1.2, :ecore_con_url_additional_header_add, [:pointer, :pointer, :pointer], :void
+  soft_attach 1.2, :ecore_con_url_additional_headers_clear, [:pointer], :void
+  soft_attach 1.2, :ecore_con_url_cookies_clear, [:pointer], :void
+  soft_attach 1.2, :ecore_con_url_cookies_file_add, [:pointer, :pointer], :void
+  soft_attach 1.2, :ecore_con_url_cookies_ignore_old_session_set, [:pointer, :boolean], :void
+  soft_attach 1.2, :ecore_con_url_cookies_init, [:pointer], :void
+  soft_attach 1.2, :ecore_con_url_cookies_jar_file_set, [:pointer, :pointer], :boolean
+  soft_attach 1.2, :ecore_con_url_cookies_jar_write, [:pointer], :void
+  soft_attach 1.2, :ecore_con_url_cookies_session_clear, [:pointer], :void
+  soft_attach 1.2, :ecore_con_url_custom_new, [:pointer, :pointer], :pointer
+  soft_attach 1.2, :ecore_con_url_data_get, [:pointer], :pointer
+  soft_attach 1.2, :ecore_con_url_data_set, [:pointer, :pointer], :void
+  soft_attach 1.2, :ecore_con_url_fd_set, [:pointer, :int], :void
+  soft_attach 1.2, :ecore_con_url_free, [:pointer], :void
+  soft_attach 1.2, :ecore_con_url_ftp_upload, [:pointer, :pointer, :pointer, :pointer, :pointer], :boolean
+  soft_attach 1.2, :ecore_con_url_ftp_use_epsv_set, [:pointer, :boolean], :void
+  soft_attach 1.2, :ecore_con_url_get, [:pointer], :boolean
+  soft_attach 1.2, :ecore_con_url_http_version_set, [:pointer, EcoreConUrlHttpVersion], :boolean
+  soft_attach 1.2, :ecore_con_url_httpauth_set, [:pointer, :pointer, :pointer, :boolean], :boolean
+  soft_attach 1.2, :ecore_con_url_init, [], :int
+  soft_attach 1.2, :ecore_con_url_new, [:pointer], :pointer
+  soft_attach 1.2, :ecore_con_url_pipeline_get, [], :boolean
+  soft_attach 1.2, :ecore_con_url_pipeline_set, [:boolean], :void
+  soft_attach 1.2, :ecore_con_url_post, [:pointer, :pointer, :long, :pointer], :boolean
+  soft_attach 1.2, :ecore_con_url_proxy_password_set, [:pointer, :pointer], :boolean
+  soft_attach 1.2, :ecore_con_url_proxy_set, [:pointer, :pointer], :boolean
+  soft_attach 1.2, :ecore_con_url_proxy_username_set, [:pointer, :pointer], :boolean
+  soft_attach 1.2, :ecore_con_url_received_bytes_get, [:pointer], :int
+  soft_attach 1.2, :ecore_con_url_response_headers_get, [:pointer], :pointer
+  soft_attach 1.2, :ecore_con_url_shutdown, [], :int
+  soft_attach 1.2, :ecore_con_url_ssl_ca_set, [:pointer, :pointer], :int
+  soft_attach 1.2, :ecore_con_url_ssl_verify_peer_set, [:pointer, :boolean], :void
+  soft_attach 1.2, :ecore_con_url_status_code_get, [:pointer], :int
+  soft_attach 1.2, :ecore_con_url_time, [:pointer, EcoreConUrlTime, :double], :void
+  soft_attach 1.2, :ecore_con_url_timeout_set, [:pointer, :double], :void
+  soft_attach 1.2, :ecore_con_url_url_get, [:pointer], :pointer
+  soft_attach 1.2, :ecore_con_url_url_set, [:pointer, :pointer], :boolean
+  soft_attach 1.2, :ecore_con_url_verbose_set, [:pointer, :boolean], :void
 
 
 
   # Ecore Connection SSL Functions
   # http://localhost/ecore/group__Ecore__Con__SSL__Group.html
 
-  soft_attach 1.1, :ecore_con_ssl_available_get, [], :int
-  soft_attach 1.1, :ecore_con_ssl_client_upgrade, [:pointer, EcoreConType], :boolean
-  soft_attach 1.1, :ecore_con_ssl_server_cafile_add, [:pointer, :pointer], :boolean
-  soft_attach 1.1, :ecore_con_ssl_server_cert_add, [:pointer, :pointer], :boolean
-  soft_attach 1.1, :ecore_con_ssl_server_crl_add, [:pointer, :pointer], :boolean
-  soft_attach 1.1, :ecore_con_ssl_server_privkey_add, [:pointer, :pointer], :boolean
-  soft_attach 1.1, :ecore_con_ssl_server_upgrade, [:pointer, EcoreConType], :boolean
-  soft_attach 1.1, :ecore_con_ssl_server_verify, [:pointer], :void
-  soft_attach 1.1, :ecore_con_ssl_server_verify_basic, [:pointer], :void
-  soft_attach 1.1, :ecore_con_ssl_server_verify_name_get, [:pointer], :pointer
-  soft_attach 1.1, :ecore_con_ssl_server_verify_name_set, [:pointer, :pointer], :void
+  soft_attach 1.2, :ecore_con_ssl_available_get, [], :int
+  soft_attach 1.2, :ecore_con_ssl_client_upgrade, [:pointer, EcoreConType], :boolean
+  soft_attach 1.2, :ecore_con_ssl_server_cafile_add, [:pointer, :pointer], :boolean
+  soft_attach 1.2, :ecore_con_ssl_server_cert_add, [:pointer, :pointer], :boolean
+  soft_attach 1.2, :ecore_con_ssl_server_crl_add, [:pointer, :pointer], :boolean
+  soft_attach 1.2, :ecore_con_ssl_server_privkey_add, [:pointer, :pointer], :boolean
+  soft_attach 1.2, :ecore_con_ssl_server_upgrade, [:pointer, EcoreConType], :boolean
+  soft_attach 1.2, :ecore_con_ssl_server_verify, [:pointer], :void
+  soft_attach 1.2, :ecore_con_ssl_server_verify_basic, [:pointer], :void
+  soft_attach 1.2, :ecore_con_ssl_server_verify_name_get, [:pointer], :pointer
+  soft_attach 1.2, :ecore_con_ssl_server_verify_name_set, [:pointer, :pointer], :void
 
+  # Ecore Connection SOCKS functions
+  # http://localhost/ecore/group__Ecore__Con__Socks__Group.html
 
+  soft_attach 1.2, :ecore_con_socks4_remote_add, [:pointer, :int, :pointer], :pointer
+  soft_attach 1.2, :ecore_con_socks4_remote_del, [:pointer, :int, :pointer], :void
+  soft_attach 1.2, :ecore_con_socks4_remote_exists, [:pointer, :int, :pointer], :boolean
+  soft_attach 1.2, :ecore_con_socks5_remote_add, [:pointer, :int, :pointer, :pointer], :pointer
+  soft_attach 1.2, :ecore_con_socks5_remote_del, [:pointer, :int, :pointer, :pointer], :void
+  soft_attach 1.2, :ecore_con_socks5_remote_exists, [:pointer, :int, :pointer, :pointer], :boolean
+  soft_attach 1.2, :ecore_con_socks_apply_always, [:pointer], :void
+  soft_attach 1.2, :ecore_con_socks_apply_once, [:pointer], :void
+  soft_attach 1.2, :ecore_con_socks_bind_get, [:pointer], :boolean
+  soft_attach 1.2, :ecore_con_socks_bind_set, [:pointer, :boolean], :void
+  soft_attach 1.2, :ecore_con_socks_lookup_get, [:pointer], :boolean
+  soft_attach 1.2, :ecore_con_socks_lookup_set, [:pointer, :boolean], :void
+  soft_attach 1.2, :ecore_con_socks_remote_del, [:pointer], :void
+  soft_attach 1.2, :ecore_con_socks_version_get, [:pointer], :int
+
+  # Ecore_Evas wrapper/helper set of functions
+  # http://localhost/ecore/group__Ecore__Evas__Group.html
+
+  soft_attach 1.2, :ecore_evas_activate, [:pointer], :void
+  soft_attach 1.2, :ecore_evas_alpha_get, [:pointer], :boolean
+  soft_attach 1.2, :ecore_evas_alpha_set, [:pointer, :boolean], :void
+  soft_attach 1.2, :ecore_evas_aspect_get, [:pointer], :double
+  soft_attach 1.2, :ecore_evas_aspect_set, [:pointer, :double], :void
+  soft_attach 1.2, :ecore_evas_avoid_damage_get, [:pointer], EcoreEvasAvoidDamageType
+  soft_attach 1.2, :ecore_evas_avoid_damage_set, [:pointer, EcoreEvasAvoidDamageType], :void
+  soft_attach 1.2, :ecore_evas_borderless_get, [:pointer], :boolean
+  soft_attach 1.2, :ecore_evas_borderless_set, [:pointer, :boolean], :void
+  soft_attach 1.2, :ecore_evas_buffer_allocfunc_new, [:int, :int, :pointer, :pointer, :pointer], :pointer
+  soft_attach 1.2, :ecore_evas_buffer_new, [:int, :int], :pointer
+  soft_attach 1.2, :ecore_evas_buffer_pixels_get, [:pointer], :pointer
+  soft_attach 1.2, :ecore_evas_callback_delete_request_set, [:pointer, :ecore_evas_event_cb], :void
+  soft_attach 1.2, :ecore_evas_callback_destroy_set, [:pointer, :ecore_evas_event_cb], :void
+  soft_attach 1.2, :ecore_evas_callback_focus_in_set, [:pointer, :ecore_evas_event_cb], :void
+  soft_attach 1.2, :ecore_evas_callback_focus_out_set, [:pointer, :ecore_evas_event_cb], :void
+  soft_attach 1.2, :ecore_evas_callback_hide_set, [:pointer, :ecore_evas_event_cb], :void
+  soft_attach 1.2, :ecore_evas_callback_mouse_in_set, [:pointer, :ecore_evas_event_cb], :void
+  soft_attach 1.2, :ecore_evas_callback_mouse_out_set, [:pointer, :ecore_evas_event_cb], :void
+  soft_attach 1.2, :ecore_evas_callback_move_set, [:pointer, :ecore_evas_event_cb], :void
+  soft_attach 1.2, :ecore_evas_callback_post_render_set, [:pointer, :ecore_evas_event_cb], :void
+  soft_attach 1.2, :ecore_evas_callback_pre_free_set, [:pointer, :ecore_evas_event_cb], :void
+  soft_attach 1.2, :ecore_evas_callback_pre_render_set, [:pointer, :ecore_evas_event_cb], :void
+  soft_attach 1.2, :ecore_evas_callback_resize_set, [:pointer, :ecore_evas_event_cb], :void
+  soft_attach 1.2, :ecore_evas_callback_show_set, [:pointer, :ecore_evas_event_cb], :void
+  soft_attach 1.2, :ecore_evas_callback_state_change_set, [:pointer, :ecore_evas_event_cb], :void
+  soft_attach 1.2, :ecore_evas_callback_sticky_set, [:pointer, :ecore_evas_event_cb], :void
+  soft_attach 1.2, :ecore_evas_callback_unsticky_set, [:pointer, :ecore_evas_event_cb], :void
+  soft_attach 1.2, :ecore_evas_cursor_get, [:pointer, :pointer, :pointer, :pointer, :pointer], :void
+  soft_attach 1.2, :ecore_evas_cursor_set, [:pointer, :pointer, :int, :int, :int], :void
+  soft_attach 1.2, :ecore_evas_data_get, [:pointer, :pointer], :pointer
+  soft_attach 1.2, :ecore_evas_data_set, [:pointer, :pointer, :pointer], :void
+  soft_attach 1.2, :ecore_evas_demand_attention_get, [:pointer], :boolean
+  soft_attach 1.2, :ecore_evas_demand_attention_set, [:pointer, :boolean], :void
+  soft_attach 1.2, :ecore_evas_ecore_evas_get, [:pointer], :pointer
+  soft_attach 1.2, :ecore_evas_ecore_evas_list_get, [], :pointer
+  soft_attach 1.2, :ecore_evas_engine_name_get, [:pointer], :pointer
+  soft_attach 1.2, :ecore_evas_engine_type_supported_get, [EcoreEvasEngineType], :int
+  soft_attach 1.2, :ecore_evas_engines_get, [], :pointer
+  soft_attach 1.2, :ecore_evas_ews_backing_store_get, [:pointer], :pointer
+  soft_attach 1.2, :ecore_evas_ews_delete_request, [:pointer], :void
+  soft_attach 1.2, :ecore_evas_ews_new, [:int, :int, :int, :int], :pointer
+  soft_attach 1.2, :ecore_evas_fb_new, [:pointer, :int, :int, :int], :pointer
+  soft_attach 1.2, :ecore_evas_focus_get, [:pointer], :boolean
+  soft_attach 1.2, :ecore_evas_focus_set, [:pointer, :boolean], :void
+  soft_attach 1.2, :ecore_evas_focus_skip_get, [:pointer], :boolean
+  soft_attach 1.2, :ecore_evas_focus_skip_set, [:pointer, :boolean], :void
+  soft_attach 1.2, :ecore_evas_free, [:pointer], :void
+  soft_attach 1.2, :ecore_evas_fullscreen_get, [:pointer], :boolean
+  soft_attach 1.2, :ecore_evas_fullscreen_set, [:pointer, :boolean], :void
+  soft_attach 1.2, :ecore_evas_geometry_get, [:pointer, :pointer, :pointer, :pointer, :pointer], :void
+  soft_attach 1.2, :ecore_evas_get, [:pointer], :pointer
+  soft_attach 1.2, :ecore_evas_gl_x11_direct_resize_get, [:pointer], :boolean
+  soft_attach 1.2, :ecore_evas_gl_x11_direct_resize_set, [:pointer, :boolean], :void
+  #soft_attach 1.2, :ecore_evas_gl_x11_extra_event_window_add, [:pointer, EcoreXWindow], :void
+  #soft_attach 1.2, :ecore_evas_gl_x11_new, [:pointer, EcoreXWindow, :int, :int, :int, :int], :pointer
+  soft_attach 1.2, :ecore_evas_gl_x11_pre_post_swap_callback_set, [:pointer, :pointer, :pointer, :pointer], :void
+  #soft_attach 1.2, :ecore_evas_gl_x11_window_get, [:pointer], EcoreXWindow
+  soft_attach 1.2, :ecore_evas_hide, [:pointer], :void
+  soft_attach 1.2, :ecore_evas_iconified_get, [:pointer], :boolean
+  soft_attach 1.2, :ecore_evas_iconified_set, [:pointer, :boolean], :void
+  soft_attach 1.2, :ecore_evas_ignore_events_get, [:pointer], :boolean
+  soft_attach 1.2, :ecore_evas_ignore_events_set, [:pointer, :boolean], :void
+  soft_attach 1.2, :ecore_evas_init, [], :int
+  soft_attach 1.2, :ecore_evas_input_event_register, [:pointer], :void
+  soft_attach 1.2, :ecore_evas_input_event_unregister, [:pointer], :void
+  soft_attach 1.2, :ecore_evas_layer_get, [:pointer], :int
+  soft_attach 1.2, :ecore_evas_layer_set, [:pointer, :int], :void
+  soft_attach 1.2, :ecore_evas_lower, [:pointer], :void
+  soft_attach 1.2, :ecore_evas_managed_move, [:pointer, :int, :int], :void
+  soft_attach 1.2, :ecore_evas_manual_render, [:pointer], :void
+  soft_attach 1.2, :ecore_evas_maximized_get, [:pointer], :boolean
+  soft_attach 1.2, :ecore_evas_maximized_set, [:pointer, :boolean], :void
+  soft_attach 1.2, :ecore_evas_modal_get, [:pointer], :boolean
+  soft_attach 1.2, :ecore_evas_modal_set, [:pointer, :boolean], :void
+  soft_attach 1.2, :ecore_evas_move, [:pointer, :int, :int], :void
+  soft_attach 1.2, :ecore_evas_move_resize, [:pointer, :int, :int, :int, :int], :void
+  soft_attach 1.2, :ecore_evas_name_class_get, [:pointer, :pointer, :pointer], :void
+  soft_attach 1.2, :ecore_evas_name_class_set, [:pointer, :pointer, :pointer], :void
+  soft_attach 1.2, :ecore_evas_new, [:pointer, :int, :int, :int, :int, :pointer], :pointer
+  soft_attach 1.2, :ecore_evas_object_associate, [:pointer, :pointer, EcoreEvasObjectAssociateFlags], :boolean
+  soft_attach 1.2, :ecore_evas_object_associate_get, [:pointer], :pointer
+  soft_attach 1.2, :ecore_evas_object_cursor_set, [:pointer, :pointer, :int, :int, :int], :void
+  soft_attach 1.2, :ecore_evas_object_dissociate, [:pointer, :pointer], :boolean
+  soft_attach 1.2, :ecore_evas_object_ecore_evas_get, [:pointer], :pointer
+  soft_attach 1.2, :ecore_evas_object_evas_get, [:pointer], :pointer
+  soft_attach 1.2, :ecore_evas_object_image_new, [:pointer], :pointer
+  soft_attach 1.2, :ecore_evas_override_get, [:pointer], :boolean
+  soft_attach 1.2, :ecore_evas_override_set, [:pointer, :boolean], :void
+  soft_attach 1.2, :ecore_evas_raise, [:pointer], :void
+  soft_attach 1.2, :ecore_evas_request_geometry_get, [:pointer, :pointer, :pointer, :pointer, :pointer], :void
+  soft_attach 1.2, :ecore_evas_resize, [:pointer, :int, :int], :void
+  soft_attach 1.2, :ecore_evas_rotation_get, [:pointer], :int
+  soft_attach 1.2, :ecore_evas_rotation_set, [:pointer, :int], :void
+  soft_attach 1.2, :ecore_evas_rotation_with_resize_set, [:pointer, :int], :void
+  soft_attach 1.2, :ecore_evas_screen_geometry_get, [:pointer, :pointer, :pointer, :pointer, :pointer], :void
+  soft_attach 1.2, :ecore_evas_shaped_get, [:pointer], :boolean
+  soft_attach 1.2, :ecore_evas_shaped_set, [:pointer, :boolean], :void
+  soft_attach 1.2, :ecore_evas_show, [:pointer], :void
+  soft_attach 1.2, :ecore_evas_shutdown, [], :int
+  soft_attach 1.2, :ecore_evas_size_base_get, [:pointer, :pointer, :pointer], :void
+  soft_attach 1.2, :ecore_evas_size_base_set, [:pointer, :int, :int], :void
+  soft_attach 1.2, :ecore_evas_size_max_get, [:pointer, :pointer, :pointer], :void
+  soft_attach 1.2, :ecore_evas_size_max_set, [:pointer, :int, :int], :void
+  soft_attach 1.2, :ecore_evas_size_min_get, [:pointer, :pointer, :pointer], :void
+  soft_attach 1.2, :ecore_evas_size_min_set, [:pointer, :int, :int], :void
+  soft_attach 1.2, :ecore_evas_size_step_get, [:pointer, :pointer, :pointer], :void
+  soft_attach 1.2, :ecore_evas_size_step_set, [:pointer, :int, :int], :void
+  soft_attach 1.2, :ecore_evas_software_x11_16_direct_resize_get, [:pointer], :boolean
+  soft_attach 1.2, :ecore_evas_software_x11_16_direct_resize_set, [:pointer, :boolean], :void
+  #soft_attach 1.2, :ecore_evas_software_x11_16_extra_event_window_add, [:pointer, EcoreXWindow], :void
+  #soft_attach 1.2, :ecore_evas_software_x11_16_new, [:pointer, EcoreXWindow, :int, :int, :int, :int], :pointer
+  #soft_attach 1.2, :ecore_evas_software_x11_16_window_get, [:pointer], EcoreXWindow
+  soft_attach 1.2, :ecore_evas_software_x11_8_direct_resize_get, [:pointer], :boolean
+  soft_attach 1.2, :ecore_evas_software_x11_8_direct_resize_set, [:pointer, :boolean], :void
+  #soft_attach 1.2, :ecore_evas_software_x11_8_extra_event_window_add, [:pointer, EcoreXWindow], :void
+  #soft_attach 1.2, :ecore_evas_software_x11_8_new, [:pointer, EcoreXWindow, :int, :int, :int, :int], :pointer
+  #soft_attach 1.2, :ecore_evas_software_x11_8_subwindow_get, [:pointer], EcoreXWindow
+  #soft_attach 1.2, :ecore_evas_software_x11_8_window_get, [:pointer], EcoreXWindow
+  soft_attach 1.2, :ecore_evas_software_x11_direct_resize_get, [:pointer], :boolean
+  soft_attach 1.2, :ecore_evas_software_x11_direct_resize_set, [:pointer, :boolean], :void
+  #soft_attach 1.2, :ecore_evas_software_x11_extra_event_window_add, [:pointer, EcoreXWindow], :void
+  #soft_attach 1.2, :ecore_evas_software_x11_new, [:pointer, EcoreXWindow, :int, :int, :int, :int], :pointer
+  #soft_attach 1.2, :ecore_evas_software_x11_window_get, [:pointer], EcoreXWindow
+  soft_attach 1.2, :ecore_evas_sticky_get, [:pointer], :boolean
+  soft_attach 1.2, :ecore_evas_sticky_set, [:pointer, :boolean], :void
+  soft_attach 1.2, :ecore_evas_title_get, [:pointer], :pointer
+  soft_attach 1.2, :ecore_evas_title_set, [:pointer, :pointer], :void
+  soft_attach 1.2, :ecore_evas_transparent_get, [:pointer], :boolean
+  soft_attach 1.2, :ecore_evas_transparent_set, [:pointer, :boolean], :void
+  soft_attach 1.2, :ecore_evas_urgent_get, [:pointer], :boolean
+  soft_attach 1.2, :ecore_evas_urgent_set, [:pointer, :boolean], :void
+  soft_attach 1.2, :ecore_evas_visibility_get, [:pointer], :int
+  #soft_attach 1.2, :ecore_evas_window_get, [:pointer], EcoreWindow
+  soft_attach 1.2, :ecore_evas_window_group_get, [:pointer], :pointer
+  soft_attach 1.2, :ecore_evas_window_group_set, [:pointer, :pointer], :void
+  soft_attach 1.2, :ecore_evas_withdrawn_get, [:pointer], :boolean
+  soft_attach 1.2, :ecore_evas_withdrawn_set, [:pointer, :boolean], :void
+  soft_attach 1.2, :ecore_getopt_callback_ecore_evas_list_engines, [:pointer, :pointer, :pointer, :pointer, :pointer], :char
+
+  # Ecore_Evas Single Process Windowing System
+  # http://localhost/ecore/group__Ecore__Evas__Ews.html 
+
+  soft_attach 1.2, :ecore_evas_ews_background_set, [:pointer], :void
+  soft_attach 1.2, :ecore_evas_ews_children_get, [], :pointer
+  soft_attach 1.2, :ecore_evas_ews_ecore_evas_get, [], :pointer
+  soft_attach 1.2, :ecore_evas_ews_engine_set, [:pointer, :pointer], :boolean
+  soft_attach 1.2, :ecore_evas_ews_evas_get, [], :pointer
+  soft_attach 1.2, :ecore_evas_ews_manager_get, [], :pointer
+  soft_attach 1.2, :ecore_evas_ews_manager_set, [:pointer], :void
+  soft_attach 1.2, :ecore_evas_ews_setup, [:int, :int, :int, :int], :boolean
+
+  # External plug/socket infrastructure to remote canvases
+  # http://localhost/ecore/group__Ecore__Evas__Extn.html
+
+  soft_attach 1.2, :ecore_evas_extn_plug_connect, [:pointer, :pointer, :int, :boolean], :boolean
+  soft_attach 1.2, :ecore_evas_extn_plug_new, [:pointer], :pointer
+  soft_attach 1.2, :ecore_evas_extn_plug_object_data_lock, [:pointer], :void
+  soft_attach 1.2, :ecore_evas_extn_plug_object_data_unlock, [:pointer], :void
+  soft_attach 1.2, :ecore_evas_extn_socket_listen, [:pointer, :pointer, :int, :boolean], :boolean
+  soft_attach 1.2, :ecore_evas_extn_socket_new, [:int, :int], :pointer
 
   # Ecore_FB - Frame buffer convenience functions.
   # http://localhost/ecore/group__Ecore__FB__Group.html
 
-  soft_attach 1.1, :ecore_fb_callback_gain_set, [:pointer, :pointer], :void
-  soft_attach 1.1, :ecore_fb_callback_lose_set, [:pointer, :pointer], :void
-  soft_attach 1.1, :ecore_fb_init, [:pointer], :int
-  soft_attach 1.1, :ecore_fb_input_device_axis_size_set, [:pointer, :int, :int], :void
-  soft_attach 1.1, :ecore_fb_input_device_cap_get, [:pointer], EcoreFbInputDeviceCap
-  soft_attach 1.1, :ecore_fb_input_device_close, [:pointer], :void
-  soft_attach 1.1, :ecore_fb_input_device_listen, [:pointer, :boolean], :void
-  soft_attach 1.1, :ecore_fb_input_device_name_get, [:pointer], :pointer
-  soft_attach 1.1, :ecore_fb_input_device_open, [:pointer], :pointer
-  soft_attach 1.1, :ecore_fb_input_device_threshold_click_get, [:pointer], :double
-  soft_attach 1.1, :ecore_fb_input_device_threshold_click_set, [:pointer, :double], :void
-  soft_attach 1.1, :ecore_fb_input_device_window_set, [:pointer, :pointer], :void
-  soft_attach 1.1, :ecore_fb_shutdown, [], :int
-  soft_attach 1.1, :ecore_fb_size_get, [:pointer, :pointer], :void
-  soft_attach 1.1, :ecore_fb_touch_screen_calibrate_get, [:pointer, :pointer, :pointer, :pointer, :pointer], :void
-  soft_attach 1.1, :ecore_fb_touch_screen_calibrate_set, [:int, :int, :int, :int, :int], :void
+  soft_attach 1.2, :ecore_fb_callback_gain_set, [:pointer, :pointer], :void
+  soft_attach 1.2, :ecore_fb_callback_lose_set, [:pointer, :pointer], :void
+  soft_attach 1.2, :ecore_fb_init, [:pointer], :int
+  soft_attach 1.2, :ecore_fb_input_device_axis_size_set, [:pointer, :int, :int], :void
+  soft_attach 1.2, :ecore_fb_input_device_cap_get, [:pointer], EcoreFbInputDeviceCap
+  soft_attach 1.2, :ecore_fb_input_device_close, [:pointer], :void
+  soft_attach 1.2, :ecore_fb_input_device_listen, [:pointer, :boolean], :void
+  soft_attach 1.2, :ecore_fb_input_device_name_get, [:pointer], :pointer
+  soft_attach 1.2, :ecore_fb_input_device_open, [:pointer], :pointer
+  soft_attach 1.2, :ecore_fb_input_device_threshold_click_get, [:pointer], :double
+  soft_attach 1.2, :ecore_fb_input_device_threshold_click_set, [:pointer, :double], :void
+  soft_attach 1.2, :ecore_fb_input_device_window_set, [:pointer, :pointer], :void
+  soft_attach 1.2, :ecore_fb_shutdown, [], :int
+  soft_attach 1.2, :ecore_fb_size_get, [:pointer, :pointer], :void
+  soft_attach 1.2, :ecore_fb_touch_screen_calibrate_get, [:pointer, :pointer, :pointer, :pointer, :pointer], :void
+  soft_attach 1.2, :ecore_fb_touch_screen_calibrate_set, [:int, :int, :int, :int, :int], :void
 
 
 
@@ -537,179 +732,203 @@ module Ecore
   # Framebuffer Calibration Functions
   # http://localhost/ecore/group__Ecore__FB__Calibrate__Group.html
 
-  soft_attach 1.1, :ecore_fb_touch_screen_calibrate_get, [:pointer, :pointer, :pointer, :pointer, :pointer], :void
-  soft_attach 1.1, :ecore_fb_touch_screen_calibrate_set, [:int, :int, :int, :int, :int], :void
+  soft_attach 1.2, :ecore_fb_touch_screen_calibrate_get, [:pointer, :pointer, :pointer, :pointer, :pointer], :void
+  soft_attach 1.2, :ecore_fb_touch_screen_calibrate_set, [:int, :int, :int, :int, :int], :void
 
 
 
   # Ecore_File - Files and directories convenience functions
   # http://localhost/ecore/group__Ecore__File__Group.html
 
-  soft_attach 1.1, :ecore_file_app_exe_get, [:pointer], :pointer
-  soft_attach 1.1, :ecore_file_app_installed, [:pointer], :boolean
-  soft_attach 1.1, :ecore_file_app_list, [], :pointer
-  soft_attach 1.1, :ecore_file_can_exec, [:pointer], :boolean
-  soft_attach 1.1, :ecore_file_can_read, [:pointer], :boolean
-  soft_attach 1.1, :ecore_file_can_write, [:pointer], :boolean
-  soft_attach 1.1, :ecore_file_cp, [:pointer, :pointer], :boolean
-  soft_attach 1.1, :ecore_file_dir_get, [:pointer], :pointer
-  soft_attach 1.1, :ecore_file_dir_is_empty, [:pointer], :int
-  soft_attach 1.1, :ecore_file_download, [:pointer, :pointer, :ecore_file_download_completion_cb, :ecore_file_download_progress_cb, :pointer, :pointer], :boolean
-  soft_attach 1.1, :ecore_file_download_abort, [:pointer], :void
-  soft_attach 1.1, :ecore_file_download_abort_all, [], :void
-  soft_attach 1.1, :ecore_file_download_full, [:pointer, :pointer, :ecore_file_download_completion_cb, :ecore_file_download_progress_cb, :pointer, :pointer, :pointer], :boolean
-  soft_attach 1.1, :ecore_file_download_protocol_available, [:pointer], :boolean
-  soft_attach 1.1, :ecore_file_escape_name, [:pointer], :pointer
-  soft_attach 1.1, :ecore_file_exists, [:pointer], :boolean
-  soft_attach 1.1, :ecore_file_file_get, [:pointer], :pointer
-  soft_attach 1.1, :ecore_file_is_dir, [:pointer], :boolean
-  soft_attach 1.1, :ecore_file_ls, [:pointer], :pointer
-  soft_attach 1.1, :ecore_file_mkdir, [:pointer], :boolean
-  soft_attach 1.1, :ecore_file_mkdirs, [:pointer], :int
-  soft_attach 1.1, :ecore_file_mkpath, [:pointer], :boolean
-  soft_attach 1.1, :ecore_file_mkpaths, [:pointer], :int
-  soft_attach 1.1, :ecore_file_mksubdirs, [:pointer, :pointer], :int
-  soft_attach 1.1, :ecore_file_mod_time, [:pointer], :long
-  soft_attach 1.1, :ecore_file_monitor_add, [:pointer, :ecore_file_monitor_cb, :pointer], :pointer
-  soft_attach 1.1, :ecore_file_monitor_del, [:pointer], :void
-  soft_attach 1.1, :ecore_file_monitor_path_get, [:pointer], :pointer
-  soft_attach 1.1, :ecore_file_mv, [:pointer, :pointer], :boolean
-  soft_attach 1.1, :ecore_file_path_dir_exists, [:pointer], :boolean
-  soft_attach 1.1, :ecore_file_readlink, [:pointer], :pointer
-  soft_attach 1.1, :ecore_file_realpath, [:pointer], :pointer
-  soft_attach 1.1, :ecore_file_recursive_rm, [:pointer], :boolean
-  soft_attach 1.1, :ecore_file_remove, [:pointer], :boolean
-  soft_attach 1.1, :ecore_file_rmdir, [:pointer], :boolean
-  soft_attach 1.1, :ecore_file_size, [:pointer], :long
-  soft_attach 1.1, :ecore_file_strip_ext, [:pointer], :pointer
-  soft_attach 1.1, :ecore_file_symlink, [:pointer, :pointer], :boolean
-  soft_attach 1.1, :ecore_file_unlink, [:pointer], :boolean
-
-
+  soft_attach 1.2, :ecore_file_app_exe_get, [:pointer], :pointer
+  soft_attach 1.2, :ecore_file_app_installed, [:pointer], :boolean
+  soft_attach 1.2, :ecore_file_app_list, [], :pointer
+  soft_attach 1.2, :ecore_file_can_exec, [:pointer], :boolean
+  soft_attach 1.2, :ecore_file_can_read, [:pointer], :boolean
+  soft_attach 1.2, :ecore_file_can_write, [:pointer], :boolean
+  soft_attach 1.2, :ecore_file_cp, [:pointer, :pointer], :boolean
+  soft_attach 1.2, :ecore_file_dir_get, [:pointer], :pointer
+  soft_attach 1.2, :ecore_file_dir_is_empty, [:pointer], :int
+  soft_attach 1.2, :ecore_file_download, [:pointer, :pointer, :ecore_file_download_completion_cb, :ecore_file_download_progress_cb, :pointer, :pointer], :boolean
+  soft_attach 1.2, :ecore_file_download_abort, [:pointer], :void
+  soft_attach 1.2, :ecore_file_download_abort_all, [], :void
+  soft_attach 1.2, :ecore_file_download_full, [:pointer, :pointer, :ecore_file_download_completion_cb, :ecore_file_download_progress_cb, :pointer, :pointer, :pointer], :boolean
+  soft_attach 1.2, :ecore_file_download_protocol_available, [:pointer], :boolean
+  soft_attach 1.2, :ecore_file_escape_name, [:pointer], :pointer
+  soft_attach 1.2, :ecore_file_exists, [:pointer], :boolean
+  soft_attach 1.2, :ecore_file_file_get, [:pointer], :pointer
+  soft_attach 1.2, :ecore_file_is_dir, [:pointer], :boolean
+  soft_attach 1.2, :ecore_file_ls, [:pointer], :pointer
+  soft_attach 1.2, :ecore_file_mkdir, [:pointer], :boolean
+  soft_attach 1.2, :ecore_file_mkdirs, [:pointer], :int
+  soft_attach 1.2, :ecore_file_mkpath, [:pointer], :boolean
+  soft_attach 1.2, :ecore_file_mkpaths, [:pointer], :int
+  soft_attach 1.2, :ecore_file_mksubdirs, [:pointer, :pointer], :int
+  soft_attach 1.2, :ecore_file_mod_time, [:pointer], :long
+  soft_attach 1.2, :ecore_file_monitor_add, [:pointer, :ecore_file_monitor_cb, :pointer], :pointer
+  soft_attach 1.2, :ecore_file_monitor_del, [:pointer], :void
+  soft_attach 1.2, :ecore_file_monitor_path_get, [:pointer], :pointer
+  soft_attach 1.2, :ecore_file_mv, [:pointer, :pointer], :boolean
+  soft_attach 1.2, :ecore_file_path_dir_exists, [:pointer], :boolean
+  soft_attach 1.2, :ecore_file_readlink, [:pointer], :pointer
+  soft_attach 1.2, :ecore_file_realpath, [:pointer], :pointer
+  soft_attach 1.2, :ecore_file_recursive_rm, [:pointer], :boolean
+  soft_attach 1.2, :ecore_file_remove, [:pointer], :boolean
+  soft_attach 1.2, :ecore_file_rmdir, [:pointer], :boolean
+  soft_attach 1.2, :ecore_file_size, [:pointer], :long
+  soft_attach 1.2, :ecore_file_strip_ext, [:pointer], :pointer
+  soft_attach 1.2, :ecore_file_symlink, [:pointer, :pointer], :boolean
+  soft_attach 1.2, :ecore_file_unlink, [:pointer], :boolean
 
   # Ecore Input Method Library Functions
   # http://localhost/ecore/group__Ecore__IMF__Lib__Group.html
 
-  soft_attach 1.1, :ecore_imf_init, [], :int
-  soft_attach 1.1, :ecore_imf_shutdown, [], :int
-
-
+  soft_attach 1.2, :ecore_imf_init, [], :int
+  soft_attach 1.2, :ecore_imf_shutdown, [], :int
 
   # Ecore Input Method Context Functions
   # http://localhost/ecore/group__Ecore__IMF__Context__Group.html
 
-  soft_attach 1.1, :ecore_imf_context_add, [:pointer], :pointer
-  soft_attach 1.1, :ecore_imf_context_autocapital_type_get, [:pointer], EcoreIMFAutocapitalType
-  soft_attach 1.1, :ecore_imf_context_autocapital_type_set, [:pointer, EcoreIMFAutocapitalType], :void
-  soft_attach 1.1, :ecore_imf_context_available_ids_get, [], :pointer
-  soft_attach 1.1, :ecore_imf_context_client_canvas_get, [:pointer], :pointer
-  soft_attach 1.1, :ecore_imf_context_client_canvas_set, [:pointer, :pointer], :void
-  soft_attach 1.1, :ecore_imf_context_client_window_get, [:pointer], :pointer
-  soft_attach 1.1, :ecore_imf_context_client_window_set, [:pointer, :pointer], :void
-  soft_attach 1.1, :ecore_imf_context_control_panel_hide, [:pointer], :void
-  soft_attach 1.1, :ecore_imf_context_control_panel_show, [:pointer], :void
-  soft_attach 1.1, :ecore_imf_context_cursor_location_set, [:pointer, :int, :int, :int, :int], :void
-  soft_attach 1.1, :ecore_imf_context_cursor_position_set, [:pointer, :int], :void
-  soft_attach 1.1, :ecore_imf_context_default_id_get, [], :pointer
-  soft_attach 1.1, :ecore_imf_context_del, [:pointer], :void
-  soft_attach 1.1, :ecore_imf_context_event_callback_add, [:pointer, EcoreIMFCallbackType, :ecore_imf_event_cb, :pointer], :void
-  soft_attach 1.1, :ecore_imf_context_event_callback_del, [:pointer, EcoreIMFCallbackType, :ecore_imf_event_cb], :pointer
-  soft_attach 1.1, :ecore_imf_context_filter_event, [:pointer, EcoreIMFEventType, :pointer], :boolean
-  soft_attach 1.1, :ecore_imf_context_focus_in, [:pointer], :void
-  soft_attach 1.1, :ecore_imf_context_focus_out, [:pointer], :void
-  soft_attach 1.1, :ecore_imf_context_hide, [:pointer], :void
-  soft_attach 1.1, :ecore_imf_context_info_by_id_get, [:pointer], :pointer
-  soft_attach 1.1, :ecore_imf_context_info_get, [:pointer], :pointer
-  soft_attach 1.1, :ecore_imf_context_input_mode_get, [:pointer], EcoreIMFInputMode
-  soft_attach 1.1, :ecore_imf_context_input_mode_set, [:pointer, EcoreIMFInputMode], :void
-  soft_attach 1.1, :ecore_imf_context_input_panel_caps_lock_mode_get, [:pointer], :boolean
-  soft_attach 1.1, :ecore_imf_context_input_panel_caps_lock_mode_set, [:pointer, :boolean], :void
-  soft_attach 1.1, :ecore_imf_context_input_panel_enabled_get, [:pointer], :boolean
-  soft_attach 1.1, :ecore_imf_context_input_panel_enabled_set, [:pointer, :boolean], :void
-  soft_attach 1.1, :ecore_imf_context_input_panel_hide, [:pointer], :void
-  soft_attach 1.1, :ecore_imf_context_input_panel_imdata_get, [:pointer, :pointer, :pointer], :void
-  soft_attach 1.1, :ecore_imf_context_input_panel_imdata_set, [:pointer, :pointer, :int], :void
-  soft_attach 1.1, :ecore_imf_context_input_panel_language_get, [:pointer], EcoreIMFInputPanelLang
-  soft_attach 1.1, :ecore_imf_context_input_panel_language_set, [:pointer, EcoreIMFInputPanelLang], :void
-  soft_attach 1.1, :ecore_imf_context_input_panel_layout_get, [:pointer], EcoreIMFInputPanelLayout
-  soft_attach 1.1, :ecore_imf_context_input_panel_layout_set, [:pointer, EcoreIMFInputPanelLayout], :void
-  soft_attach 1.1, :ecore_imf_context_input_panel_return_key_disabled_get, [:pointer], :boolean
-  soft_attach 1.1, :ecore_imf_context_input_panel_return_key_disabled_set, [:pointer, :boolean], :void
-  soft_attach 1.1, :ecore_imf_context_input_panel_return_key_type_get, [:pointer], EcoreIMFInputPanelReturnKeyType
-  soft_attach 1.1, :ecore_imf_context_input_panel_return_key_type_set, [:pointer, EcoreIMFInputPanelReturnKeyType], :void
-  soft_attach 1.1, :ecore_imf_context_input_panel_show, [:pointer], :void
-  soft_attach 1.1, :ecore_imf_context_prediction_allow_get, [:pointer], :boolean
-  soft_attach 1.1, :ecore_imf_context_prediction_allow_set, [:pointer, :boolean], :void
-  soft_attach 1.1, :ecore_imf_context_preedit_string_get, [:pointer, :pointer, :pointer], :void
-  soft_attach 1.1, :ecore_imf_context_preedit_string_with_attributes_get, [:pointer, :pointer, :pointer, :pointer], :void
-  soft_attach 1.1, :ecore_imf_context_reset, [:pointer], :void
-  soft_attach 1.1, :ecore_imf_context_retrieve_surrounding_callback_set, [:pointer, :pointer, :pointer], :void
-  soft_attach 1.1, :ecore_imf_context_show, [:pointer], :void
-  soft_attach 1.1, :ecore_imf_context_use_preedit_set, [:pointer, :boolean], :void
+  soft_attach 1.2, :ecore_imf_context_add, [:pointer], :pointer
+  soft_attach 1.2, :ecore_imf_context_autocapital_type_get, [:pointer], EcoreIMFAutocapitalType
+  soft_attach 1.2, :ecore_imf_context_autocapital_type_set, [:pointer, EcoreIMFAutocapitalType], :void
+  soft_attach 1.2, :ecore_imf_context_available_ids_get, [], :pointer
+  soft_attach 1.2, :ecore_imf_context_client_canvas_get, [:pointer], :pointer
+  soft_attach 1.2, :ecore_imf_context_client_canvas_set, [:pointer, :pointer], :void
+  soft_attach 1.2, :ecore_imf_context_client_window_get, [:pointer], :pointer
+  soft_attach 1.2, :ecore_imf_context_client_window_set, [:pointer, :pointer], :void
+  soft_attach 1.2, :ecore_imf_context_control_panel_hide, [:pointer], :void
+  soft_attach 1.2, :ecore_imf_context_control_panel_show, [:pointer], :void
+  soft_attach 1.2, :ecore_imf_context_cursor_location_set, [:pointer, :int, :int, :int, :int], :void
+  soft_attach 1.2, :ecore_imf_context_cursor_position_set, [:pointer, :int], :void
+  soft_attach 1.2, :ecore_imf_context_default_id_get, [], :pointer
+  soft_attach 1.2, :ecore_imf_context_del, [:pointer], :void
+  soft_attach 1.2, :ecore_imf_context_event_callback_add, [:pointer, EcoreIMFCallbackType, :ecore_imf_event_cb, :pointer], :void
+  soft_attach 1.2, :ecore_imf_context_event_callback_del, [:pointer, EcoreIMFCallbackType, :ecore_imf_event_cb], :pointer
+  soft_attach 1.2, :ecore_imf_context_filter_event, [:pointer, EcoreIMFEventType, :pointer], :boolean
+  soft_attach 1.2, :ecore_imf_context_focus_in, [:pointer], :void
+  soft_attach 1.2, :ecore_imf_context_focus_out, [:pointer], :void
+  soft_attach 1.2, :ecore_imf_context_hide, [:pointer], :void
+  soft_attach 1.2, :ecore_imf_context_info_by_id_get, [:pointer], :pointer
+  soft_attach 1.2, :ecore_imf_context_info_get, [:pointer], :pointer
+  soft_attach 1.2, :ecore_imf_context_input_mode_get, [:pointer], EcoreIMFInputMode
+  soft_attach 1.2, :ecore_imf_context_input_mode_set, [:pointer, EcoreIMFInputMode], :void
+  soft_attach 1.2, :ecore_imf_context_input_panel_caps_lock_mode_get, [:pointer], :boolean
+  soft_attach 1.2, :ecore_imf_context_input_panel_caps_lock_mode_set, [:pointer, :boolean], :void
+  soft_attach 1.2, :ecore_imf_context_input_panel_enabled_get, [:pointer], :boolean
+  soft_attach 1.2, :ecore_imf_context_input_panel_enabled_set, [:pointer, :boolean], :void
+  soft_attach 1.2, :ecore_imf_context_input_panel_hide, [:pointer], :void
+  soft_attach 1.2, :ecore_imf_context_input_panel_imdata_get, [:pointer, :pointer, :pointer], :void
+  soft_attach 1.2, :ecore_imf_context_input_panel_imdata_set, [:pointer, :pointer, :int], :void
+  soft_attach 1.2, :ecore_imf_context_input_panel_language_get, [:pointer], EcoreIMFInputPanelLang
+  soft_attach 1.2, :ecore_imf_context_input_panel_language_set, [:pointer, EcoreIMFInputPanelLang], :void
+  soft_attach 1.2, :ecore_imf_context_input_panel_layout_get, [:pointer], EcoreIMFInputPanelLayout
+  soft_attach 1.2, :ecore_imf_context_input_panel_layout_set, [:pointer, EcoreIMFInputPanelLayout], :void
+  soft_attach 1.2, :ecore_imf_context_input_panel_return_key_disabled_get, [:pointer], :boolean
+  soft_attach 1.2, :ecore_imf_context_input_panel_return_key_disabled_set, [:pointer, :boolean], :void
+  soft_attach 1.2, :ecore_imf_context_input_panel_return_key_type_get, [:pointer], EcoreIMFInputPanelReturnKeyType
+  soft_attach 1.2, :ecore_imf_context_input_panel_return_key_type_set, [:pointer, EcoreIMFInputPanelReturnKeyType], :void
+  soft_attach 1.2, :ecore_imf_context_input_panel_show, [:pointer], :void
+  soft_attach 1.2, :ecore_imf_context_prediction_allow_get, [:pointer], :boolean
+  soft_attach 1.2, :ecore_imf_context_prediction_allow_set, [:pointer, :boolean], :void
+  soft_attach 1.2, :ecore_imf_context_preedit_string_get, [:pointer, :pointer, :pointer], :void
+  soft_attach 1.2, :ecore_imf_context_preedit_string_with_attributes_get, [:pointer, :pointer, :pointer, :pointer], :void
+  soft_attach 1.2, :ecore_imf_context_reset, [:pointer], :void
+  soft_attach 1.2, :ecore_imf_context_retrieve_surrounding_callback_set, [:pointer, :pointer, :pointer], :void
+  soft_attach 1.2, :ecore_imf_context_show, [:pointer], :void
+  soft_attach 1.2, :ecore_imf_context_use_preedit_set, [:pointer, :boolean], :void
 
 
 
   # Ecore Input Method Context Module Functions
   # http://localhost/ecore/group__Ecore__IMF__Context__Module__Group.html
 
-  soft_attach 1.1, :ecore_imf_context_commit_event_add, [:pointer, :pointer], :void
-  soft_attach 1.1, :ecore_imf_context_data_get, [:pointer], :pointer
-  soft_attach 1.1, :ecore_imf_context_data_set, [:pointer, :pointer], :void
-  soft_attach 1.1, :ecore_imf_context_delete_surrounding_event_add, [:pointer, :int, :int], :void
-  soft_attach 1.1, :ecore_imf_context_event_callback_call, [:pointer, EcoreIMFCallbackType, :pointer], :void
-  soft_attach 1.1, :ecore_imf_context_new, [:pointer], :pointer
-  soft_attach 1.1, :ecore_imf_context_preedit_changed_event_add, [:pointer], :void
-  soft_attach 1.1, :ecore_imf_context_preedit_end_event_add, [:pointer], :void
-  soft_attach 1.1, :ecore_imf_context_preedit_start_event_add, [:pointer], :void
-  soft_attach 1.1, :ecore_imf_context_surrounding_get, [:pointer, :pointer, :pointer], :boolean
+  soft_attach 1.2, :ecore_imf_context_commit_event_add, [:pointer, :pointer], :void
+  soft_attach 1.2, :ecore_imf_context_data_get, [:pointer], :pointer
+  soft_attach 1.2, :ecore_imf_context_data_set, [:pointer, :pointer], :void
+  soft_attach 1.2, :ecore_imf_context_delete_surrounding_event_add, [:pointer, :int, :int], :void
+  soft_attach 1.2, :ecore_imf_context_event_callback_call, [:pointer, EcoreIMFCallbackType, :pointer], :void
+  soft_attach 1.2, :ecore_imf_context_new, [:pointer], :pointer
+  soft_attach 1.2, :ecore_imf_context_preedit_changed_event_add, [:pointer], :void
+  soft_attach 1.2, :ecore_imf_context_preedit_end_event_add, [:pointer], :void
+  soft_attach 1.2, :ecore_imf_context_preedit_start_event_add, [:pointer], :void
+  soft_attach 1.2, :ecore_imf_context_surrounding_get, [:pointer, :pointer, :pointer], :boolean
 
 
 
   # Ecore Input Method Context Evas Helper Functions
   # http://localhost/ecore/group__Ecore__IMF__Evas__Group.html
 
-  soft_attach 1.1, :ecore_imf_evas_event_key_down_wrap, [:pointer, :pointer], :void
-  soft_attach 1.1, :ecore_imf_evas_event_key_up_wrap, [:pointer, :pointer], :void
-  soft_attach 1.1, :ecore_imf_evas_event_mouse_down_wrap, [:pointer, :pointer], :void
-  soft_attach 1.1, :ecore_imf_evas_event_mouse_in_wrap, [:pointer, :pointer], :void
-  soft_attach 1.1, :ecore_imf_evas_event_mouse_move_wrap, [:pointer, :pointer], :void
-  soft_attach 1.1, :ecore_imf_evas_event_mouse_out_wrap, [:pointer, :pointer], :void
-  soft_attach 1.1, :ecore_imf_evas_event_mouse_up_wrap, [:pointer, :pointer], :void
-  soft_attach 1.1, :ecore_imf_evas_event_mouse_wheel_wrap, [:pointer, :pointer], :void
+  soft_attach 1.2, :ecore_imf_evas_event_key_down_wrap, [:pointer, :pointer], :void
+  soft_attach 1.2, :ecore_imf_evas_event_key_up_wrap, [:pointer, :pointer], :void
+  soft_attach 1.2, :ecore_imf_evas_event_mouse_down_wrap, [:pointer, :pointer], :void
+  soft_attach 1.2, :ecore_imf_evas_event_mouse_in_wrap, [:pointer, :pointer], :void
+  soft_attach 1.2, :ecore_imf_evas_event_mouse_move_wrap, [:pointer, :pointer], :void
+  soft_attach 1.2, :ecore_imf_evas_event_mouse_out_wrap, [:pointer, :pointer], :void
+  soft_attach 1.2, :ecore_imf_evas_event_mouse_up_wrap, [:pointer, :pointer], :void
+  soft_attach 1.2, :ecore_imf_evas_event_mouse_wheel_wrap, [:pointer, :pointer], :void
 
 
 
   # IPC Library Functions
   # http://localhost/ecore/group__Ecore__IPC__Library__Group.html
 
-  soft_attach 1.1, :ecore_ipc_init, [], :int
-  soft_attach 1.1, :ecore_ipc_shutdown, [], :int
+  soft_attach 1.2, :ecore_ipc_init, [], :int
+  soft_attach 1.2, :ecore_ipc_shutdown, [], :int
 
 
 
   # IPC Server Functions
   # http://localhost/ecore/group__Ecore__IPC__Server__Group.html
 
-  soft_attach 1.1, :ecore_ipc_server_add, [EcoreIpcType, :pointer, :int, :pointer], :pointer
-  soft_attach 1.1, :ecore_ipc_server_clients_get, [:pointer], :pointer
-  soft_attach 1.1, :ecore_ipc_server_connect, [EcoreIpcType, :pointer, :int, :pointer], :pointer
-  soft_attach 1.1, :ecore_ipc_server_connected_get, [:pointer], :boolean
-  soft_attach 1.1, :ecore_ipc_server_data_get, [:pointer], :pointer
-  soft_attach 1.1, :ecore_ipc_server_del, [:pointer], :pointer
-  soft_attach 1.1, :ecore_ipc_server_send, [:pointer, :int, :int, :int, :int, :int, :pointer, :int], :int
+  soft_attach 1.2, :ecore_ipc_server_add, [EcoreIpcType, :pointer, :int, :pointer], :pointer
+  soft_attach 1.2, :ecore_ipc_server_clients_get, [:pointer], :pointer
+  soft_attach 1.2, :ecore_ipc_server_connect, [EcoreIpcType, :pointer, :int, :pointer], :pointer
+  soft_attach 1.2, :ecore_ipc_server_connected_get, [:pointer], :boolean
+  soft_attach 1.2, :ecore_ipc_server_data_get, [:pointer], :pointer
+  soft_attach 1.2, :ecore_ipc_server_del, [:pointer], :pointer
+  soft_attach 1.2, :ecore_ipc_server_send, [:pointer, :int, :int, :int, :int, :int, :pointer, :int], :int
 
 
 
   # IPC Client Functions
   # http://localhost/ecore/group__Ecore__IPC__Client__Group.html
 
-  soft_attach 1.1, :ecore_ipc_client_data_get, [:pointer], :pointer
-  soft_attach 1.1, :ecore_ipc_client_data_set, [:pointer, :pointer], :void
-  soft_attach 1.1, :ecore_ipc_client_del, [:pointer], :pointer
-  soft_attach 1.1, :ecore_ipc_client_send, [:pointer, :int, :int, :int, :int, :int, :pointer, :int], :int
-  soft_attach 1.1, :ecore_ipc_client_server_get, [:pointer], :pointer
+  soft_attach 1.2, :ecore_ipc_client_data_get, [:pointer], :pointer
+  soft_attach 1.2, :ecore_ipc_client_data_set, [:pointer, :pointer], :void
+  soft_attach 1.2, :ecore_ipc_client_del, [:pointer], :pointer
+  soft_attach 1.2, :ecore_ipc_client_send, [:pointer, :int, :int, :int, :int, :int, :pointer, :int], :int
+  soft_attach 1.2, :ecore_ipc_client_server_get, [:pointer], :pointer
 
+  # Wayland Library Init and Shutdown Functions
+  # http://localhost/ecore/group__Ecore__Wl__Init__Group.html
 
+  soft_attach 1.2, :ecore_wl_init, [:pointer], :int
+  soft_attach 1.2, :ecore_wl_shutdown, [], :int
+
+  # Wayland Synchronization Functions
+  # http://localhost/ecore/group__Ecore__Wl__Flush__Group.html
+
+  soft_attach 1.2, :ecore_wl_flush, [], :void
+  soft_attach 1.2, :ecore_wl_sync, [], :void
+
+  # Wayland Display Functions
+  # http://localhost/ecore/group__Ecore__Wl__Display__Group.html
+
+  soft_attach 1.2, :ecore_wl_display_get, [], :pointer
+  soft_attach 1.2, :ecore_wl_screen_size_get, [:pointer, :pointer], :void
+  soft_attach 1.2, :ecore_wl_shm_get, [], :pointer
+
+  # Wayland Library Init and Shutdown Functions
+  # http://localhost/ecore/group__Ecore__Wl__Window__Group.html
+
+  soft_attach 1.2, :ecore_wl_window_free, [:pointer], :void
+  soft_attach 1.2, :ecore_wl_window_hide, [:pointer], :void
+  soft_attach 1.2, :ecore_wl_window_move, [:pointer, :int, :int], :void
+  soft_attach 1.2, :ecore_wl_window_new, [:pointer, :int, :int, :int, :int, :int], :pointer
+  soft_attach 1.2, :ecore_wl_window_raise, [:pointer], :void
+  soft_attach 1.2, :ecore_wl_window_resize, [:pointer, :int, :int, :int], :void
+  soft_attach 1.2, :ecore_wl_window_show, [:pointer], :void
 
   # X Library Init and Shutdown Functions
   # http://localhost/ecore/group__Ecore__Xcb__Init__Group.html
@@ -726,15 +945,15 @@ module Ecore
   # http://localhost/ecore/group__Ecore__X__Atom__Group.html
 
   # I don't understand what, or why ...
-  #soft_attach 1.1, :ecore_x_atom_get, [:pointer], EcoreXAtom
-  #soft_attach 1.1, :ecore_x_atom_name_get, [EcoreXAtom], :pointer
+  #soft_attach 1.2, :ecore_x_atom_get, [:pointer], EcoreXAtom
+  #soft_attach 1.2, :ecore_x_atom_name_get, [EcoreXAtom], :pointer
 
 
 
   # X Composite Extension Functions
   # http://localhost/ecore/group__Ecore__X__Composite__Group.html
 
-  soft_attach 1.1, :ecore_x_composite_query, [], :boolean
+  soft_attach 1.2, :ecore_x_composite_query, [], :boolean
 
 
 
@@ -742,61 +961,61 @@ module Ecore
   # http://localhost/ecore/group__Ecore__X__Damage__Group.html
 
 # Not sure how to support X stuff yet
-#  soft_attach 1.1, :ecore_x_damage_free, [EcoreXDamage], :void
-#  soft_attach 1.1, :ecore_x_damage_new, [EcoreXDrawable, EcoreXDamageReportLevel], EcoreXDamage
-#  soft_attach 1.1, :ecore_x_damage_subtract, [EcoreXDamage, EcoreXRegion, EcoreXRegion], :void
+#  soft_attach 1.2, :ecore_x_damage_free, [EcoreXDamage], :void
+#  soft_attach 1.2, :ecore_x_damage_new, [EcoreXDrawable, EcoreXDamageReportLevel], EcoreXDamage
+#  soft_attach 1.2, :ecore_x_damage_subtract, [EcoreXDamage, EcoreXRegion, EcoreXRegion], :void
 
 
 
   # X DPMS Extension Functions
   # http://localhost/ecore/group__Ecore__X__DPMS__Group.html
 
-  soft_attach 1.1, :ecore_x_dpms_capable_get, [], :boolean
-  soft_attach 1.1, :ecore_x_dpms_enabled_get, [], :boolean
-  soft_attach 1.1, :ecore_x_dpms_enabled_set, [:int], :void
-  soft_attach 1.1, :ecore_x_dpms_query, [], :boolean
-  soft_attach 1.1, :ecore_x_dpms_timeout_off_get, [], :int
-  soft_attach 1.1, :ecore_x_dpms_timeout_off_set, [:uint], :void
-  soft_attach 1.1, :ecore_x_dpms_timeout_standby_get, [], :int
-  soft_attach 1.1, :ecore_x_dpms_timeout_standby_set, [:uint], :void
-  soft_attach 1.1, :ecore_x_dpms_timeout_suspend_get, [], :int
-  soft_attach 1.1, :ecore_x_dpms_timeout_suspend_set, [:uint], :void
-  soft_attach 1.1, :ecore_x_dpms_timeouts_get, [:pointer, :pointer, :pointer], :void
-  soft_attach 1.1, :ecore_x_dpms_timeouts_set, [:uint, :uint, :uint], :boolean
+  soft_attach 1.2, :ecore_x_dpms_capable_get, [], :boolean
+  soft_attach 1.2, :ecore_x_dpms_enabled_get, [], :boolean
+  soft_attach 1.2, :ecore_x_dpms_enabled_set, [:int], :void
+  soft_attach 1.2, :ecore_x_dpms_query, [], :boolean
+  soft_attach 1.2, :ecore_x_dpms_timeout_off_get, [], :int
+  soft_attach 1.2, :ecore_x_dpms_timeout_off_set, [:uint], :void
+  soft_attach 1.2, :ecore_x_dpms_timeout_standby_get, [], :int
+  soft_attach 1.2, :ecore_x_dpms_timeout_standby_set, [:uint], :void
+  soft_attach 1.2, :ecore_x_dpms_timeout_suspend_get, [], :int
+  soft_attach 1.2, :ecore_x_dpms_timeout_suspend_set, [:uint], :void
+  soft_attach 1.2, :ecore_x_dpms_timeouts_get, [:pointer, :pointer, :pointer], :void
+  soft_attach 1.2, :ecore_x_dpms_timeouts_set, [:uint, :uint, :uint], :boolean
 
 
 
   # X Drawable Functions
   # http://localhost/ecore/group__Ecore__X__Drawable__Group.html
 
-#  soft_attach 1.1, :ecore_x_drawable_border_width_get, [EcoreXDrawable], :int
-#  soft_attach 1.1, :ecore_x_drawable_depth_get, [EcoreXDrawable], :int
-#  soft_attach 1.1, :ecore_x_drawable_geometry_get, [EcoreXDrawable, :pointer, :pointer, :pointer, :pointer], :void
+#  soft_attach 1.2, :ecore_x_drawable_border_width_get, [EcoreXDrawable], :int
+#  soft_attach 1.2, :ecore_x_drawable_depth_get, [EcoreXDrawable], :int
+#  soft_attach 1.2, :ecore_x_drawable_geometry_get, [EcoreXDrawable, :pointer, :pointer, :pointer, :pointer], :void
 
 
 
   # X Fixes Extension Functions
   # http://localhost/ecore/group__Ecore__X__Fixes__Group.html
 
-#  soft_attach 1.1, :ecore_x_region_combine, [EcoreXRegion, EcoreXRegion, EcoreXRegion], :void
-#  soft_attach 1.1, :ecore_x_region_copy, [EcoreXRegion, EcoreXRegion], :void
-#  soft_attach 1.1, :ecore_x_region_expand, [EcoreXRegion, EcoreXRegion, :uint, :uint, :uint, :uint], :void
-#  soft_attach 1.1, :ecore_x_region_extents, [EcoreXRegion, EcoreXRegion], :void
-#  soft_attach 1.1, :ecore_x_region_fetch, [EcoreXRegion, :pointer, :pointer], :pointer
-#  soft_attach 1.1, :ecore_x_region_free, [EcoreXRegion], :void
-#  soft_attach 1.1, :ecore_x_region_gc_clip_set, [EcoreXRegion, EcoreXGC, :int, :int], :void
-#  soft_attach 1.1, :ecore_x_region_intersect, [EcoreXRegion, EcoreXRegion, EcoreXRegion], :void
-#  soft_attach 1.1, :ecore_x_region_invert, [EcoreXRegion, :pointer, EcoreXRegion], :void
-#  soft_attach 1.1, :ecore_x_region_new, [:pointer, :int], EcoreXRegion
-#  soft_attach 1.1, :ecore_x_region_new_from_bitmap, [EcoreXPixmap], EcoreXRegion
-#  soft_attach 1.1, :ecore_x_region_new_from_gc, [EcoreXGC], EcoreXRegion
-#  soft_attach 1.1, :ecore_x_region_new_from_picture, [EcoreXPicture], EcoreXRegion
-#  soft_attach 1.1, :ecore_x_region_new_from_window, [EcoreXWindow, EcoreXRegionType], EcoreXRegion
-#  soft_attach 1.1, :ecore_x_region_picture_clip_set, [EcoreXRegion, EcoreXPicture, :int, :int], :void
-#  soft_attach 1.1, :ecore_x_region_set, [EcoreXRegion, :pointer, :int], :void
-#  soft_attach 1.1, :ecore_x_region_subtract, [EcoreXRegion, EcoreXRegion, EcoreXRegion], :void
-#  soft_attach 1.1, :ecore_x_region_translate, [EcoreXRegion, :int, :int], :void
-#  soft_attach 1.1, :ecore_x_region_window_shape_set, [EcoreXRegion, EcoreXWindow, EcoreXShapeType, :int, :int], :void
+#  soft_attach 1.2, :ecore_x_region_combine, [EcoreXRegion, EcoreXRegion, EcoreXRegion], :void
+#  soft_attach 1.2, :ecore_x_region_copy, [EcoreXRegion, EcoreXRegion], :void
+#  soft_attach 1.2, :ecore_x_region_expand, [EcoreXRegion, EcoreXRegion, :uint, :uint, :uint, :uint], :void
+#  soft_attach 1.2, :ecore_x_region_extents, [EcoreXRegion, EcoreXRegion], :void
+#  soft_attach 1.2, :ecore_x_region_fetch, [EcoreXRegion, :pointer, :pointer], :pointer
+#  soft_attach 1.2, :ecore_x_region_free, [EcoreXRegion], :void
+#  soft_attach 1.2, :ecore_x_region_gc_clip_set, [EcoreXRegion, EcoreXGC, :int, :int], :void
+#  soft_attach 1.2, :ecore_x_region_intersect, [EcoreXRegion, EcoreXRegion, EcoreXRegion], :void
+#  soft_attach 1.2, :ecore_x_region_invert, [EcoreXRegion, :pointer, EcoreXRegion], :void
+#  soft_attach 1.2, :ecore_x_region_new, [:pointer, :int], EcoreXRegion
+#  soft_attach 1.2, :ecore_x_region_new_from_bitmap, [EcoreXPixmap], EcoreXRegion
+#  soft_attach 1.2, :ecore_x_region_new_from_gc, [EcoreXGC], EcoreXRegion
+#  soft_attach 1.2, :ecore_x_region_new_from_picture, [EcoreXPicture], EcoreXRegion
+#  soft_attach 1.2, :ecore_x_region_new_from_window, [EcoreXWindow, EcoreXRegionType], EcoreXRegion
+#  soft_attach 1.2, :ecore_x_region_picture_clip_set, [EcoreXRegion, EcoreXPicture, :int, :int], :void
+#  soft_attach 1.2, :ecore_x_region_set, [EcoreXRegion, :pointer, :int], :void
+#  soft_attach 1.2, :ecore_x_region_subtract, [EcoreXRegion, EcoreXRegion, EcoreXRegion], :void
+#  soft_attach 1.2, :ecore_x_region_translate, [EcoreXRegion, :int, :int], :void
+#  soft_attach 1.2, :ecore_x_region_window_shape_set, [EcoreXRegion, EcoreXWindow, EcoreXShapeType, :int, :int], :void
 
 
 
@@ -807,7 +1026,7 @@ module Ecore
   # MWM related functions
   # http://localhost/ecore/group__Ecore__X__MWM__Group.html
 
-#  soft_attach 1.1, :ecore_x_mwm_borderless_set, [EcoreXWindow, :boolean], :void
+#  soft_attach 1.2, :ecore_x_mwm_borderless_set, [EcoreXWindow, :boolean], :void
 
 
 
@@ -838,20 +1057,20 @@ module Ecore
   # X Window Creation Functions
   # http://localhost/ecore/group__Ecore__X__Window__Create__Group.html
 
-#  soft_attach 1.1, :ecore_x_window_argb_new, [EcoreXWindow, :int, :int, :int, :int], EcoreXWindow
-#  soft_attach 1.1, :ecore_x_window_input_new, [EcoreXWindow, :int, :int, :int, :int], EcoreXWindow
-#  soft_attach 1.1, :ecore_x_window_manager_argb_new, [EcoreXWindow, :int, :int, :int, :int], EcoreXWindow
-#  soft_attach 1.1, :ecore_x_window_new, [EcoreXWindow, :int, :int, :int, :int], EcoreXWindow
-#  soft_attach 1.1, :ecore_x_window_override_argb_new, [EcoreXWindow, :int, :int, :int, :int], EcoreXWindow
-#  soft_attach 1.1, :ecore_x_window_override_new, [EcoreXWindow, :int, :int, :int, :int], EcoreXWindow
+#  soft_attach 1.2, :ecore_x_window_argb_new, [EcoreXWindow, :int, :int, :int, :int], EcoreXWindow
+#  soft_attach 1.2, :ecore_x_window_input_new, [EcoreXWindow, :int, :int, :int, :int], EcoreXWindow
+#  soft_attach 1.2, :ecore_x_window_manager_argb_new, [EcoreXWindow, :int, :int, :int, :int], EcoreXWindow
+#  soft_attach 1.2, :ecore_x_window_new, [EcoreXWindow, :int, :int, :int, :int], EcoreXWindow
+#  soft_attach 1.2, :ecore_x_window_override_argb_new, [EcoreXWindow, :int, :int, :int, :int], EcoreXWindow
+#  soft_attach 1.2, :ecore_x_window_override_new, [EcoreXWindow, :int, :int, :int, :int], EcoreXWindow
 
 
 
   # X Window Destroy Functions
   # http://localhost/ecore/group__Ecore__X__Window__Destroy__Group.html
 
-#  soft_attach 1.1, :ecore_x_window_delete_request_send, [EcoreXWindow], :void
-#  soft_attach 1.1, :ecore_x_window_free, [EcoreXWindow], :void
+#  soft_attach 1.2, :ecore_x_window_delete_request_send, [EcoreXWindow], :void
+#  soft_attach 1.2, :ecore_x_window_free, [EcoreXWindow], :void
 
 
 
@@ -862,7 +1081,7 @@ module Ecore
   # X Window Visibility Functions
   # http://localhost/ecore/group__Ecore__X__Window__Visibility__Group.html
 
-#  soft_attach 1.1, :ecore_x_window_visible_get, [EcoreXWindow], :int
+#  soft_attach 1.2, :ecore_x_window_visible_get, [EcoreXWindow], :int
 
 
 
@@ -889,18 +1108,18 @@ module Ecore
   # X Window Geometry Functions
   # http://localhost/ecore/group__Ecore__X__Window__Geometry__Group.html
 
-#  soft_attach 1.1, :ecore_x_window_at_xy_get, [:int, :int], EcoreXWindow
-#  soft_attach 1.1, :ecore_x_window_at_xy_with_skip_get, [:int, :int, :pointer, :int], EcoreXWindow
-#  soft_attach 1.1, :ecore_x_window_border_width_get, [EcoreXWindow], :int
-#  soft_attach 1.1, :ecore_x_window_border_width_set, [EcoreXWindow, :int], :void
-#  soft_attach 1.1, :ecore_x_window_geometry_get, [EcoreXWindow, :pointer, :pointer, :pointer, :pointer], :void
-#  soft_attach 1.1, :ecore_x_window_move, [EcoreXWindow, :int, :int], :void
-#  soft_attach 1.1, :ecore_x_window_move_resize, [EcoreXWindow, :int, :int, :int, :int], :void
-#  soft_attach 1.1, :ecore_x_window_resize, [EcoreXWindow, :int, :int], :void
-#  soft_attach 1.1, :ecore_x_window_root_get, [EcoreXWindow], EcoreXWindow
-#  soft_attach 1.1, :ecore_x_window_shadow_parent_get, [EcoreXWindow, EcoreXWindow], EcoreXWindow
-#  soft_attach 1.1, :ecore_x_window_shadow_tree_at_xy_with_skip_get, [EcoreXWindow, :int, :int, :pointer, :int], EcoreXWindow
-#  soft_attach 1.1, :ecore_x_window_size_get, [EcoreXWindow, :pointer, :pointer], :void
+#  soft_attach 1.2, :ecore_x_window_at_xy_get, [:int, :int], EcoreXWindow
+#  soft_attach 1.2, :ecore_x_window_at_xy_with_skip_get, [:int, :int, :pointer, :int], EcoreXWindow
+#  soft_attach 1.2, :ecore_x_window_border_width_get, [EcoreXWindow], :int
+#  soft_attach 1.2, :ecore_x_window_border_width_set, [EcoreXWindow, :int], :void
+#  soft_attach 1.2, :ecore_x_window_geometry_get, [EcoreXWindow, :pointer, :pointer, :pointer, :pointer], :void
+#  soft_attach 1.2, :ecore_x_window_move, [EcoreXWindow, :int, :int], :void
+#  soft_attach 1.2, :ecore_x_window_move_resize, [EcoreXWindow, :int, :int, :int, :int], :void
+#  soft_attach 1.2, :ecore_x_window_resize, [EcoreXWindow, :int, :int], :void
+#  soft_attach 1.2, :ecore_x_window_root_get, [EcoreXWindow], EcoreXWindow
+#  soft_attach 1.2, :ecore_x_window_shadow_parent_get, [EcoreXWindow, EcoreXWindow], EcoreXWindow
+#  soft_attach 1.2, :ecore_x_window_shadow_tree_at_xy_with_skip_get, [EcoreXWindow, :int, :int, :pointer, :int], EcoreXWindow
+#  soft_attach 1.2, :ecore_x_window_size_get, [EcoreXWindow, :pointer, :pointer], :void
 
 
 
@@ -911,24 +1130,24 @@ module Ecore
   # X Library Init and Shutdown Functions
   # http://localhost/ecore/group__Ecore__X__Init__Group.html
 
-  soft_attach 1.1, :ecore_x_disconnect, [], :int
-  soft_attach 1.1, :ecore_x_init, [:pointer], :int
-  soft_attach 1.1, :ecore_x_shutdown, [], :int
+  soft_attach 1.2, :ecore_x_disconnect, [], :int
+  soft_attach 1.2, :ecore_x_init, [:pointer], :int
+  soft_attach 1.2, :ecore_x_shutdown, [], :int
 
 
 
   # X Display Attributes
   # http://localhost/ecore/group__Ecore__X__Display__Attr__Group.html
 
-  soft_attach 1.1, :ecore_x_default_screen_get, [], :pointer
-  soft_attach 1.1, :ecore_x_display_get, [], :pointer
-  soft_attach 1.1, :ecore_x_double_click_time_get, [], :double
-  soft_attach 1.1, :ecore_x_double_click_time_set, [:double], :void
-  soft_attach 1.1, :ecore_x_fd_get, [], :int
-  soft_attach 1.1, :ecore_x_screen_count_get, [], :int
-  soft_attach 1.1, :ecore_x_screen_get, [:int], :pointer
-  soft_attach 1.1, :ecore_x_screen_index_get, [:pointer], :int
-  soft_attach 1.1, :ecore_x_screen_size_get, [:pointer, :pointer, :pointer], :void
+  soft_attach 1.2, :ecore_x_default_screen_get, [], :pointer
+  soft_attach 1.2, :ecore_x_display_get, [], :pointer
+  soft_attach 1.2, :ecore_x_double_click_time_get, [], :double
+  soft_attach 1.2, :ecore_x_double_click_time_set, [:double], :void
+  soft_attach 1.2, :ecore_x_fd_get, [], :int
+  soft_attach 1.2, :ecore_x_screen_count_get, [], :int
+  soft_attach 1.2, :ecore_x_screen_get, [:int], :pointer
+  soft_attach 1.2, :ecore_x_screen_index_get, [:pointer], :int
+  soft_attach 1.2, :ecore_x_screen_size_get, [:pointer, :pointer, :pointer], :void
 
 
 
@@ -938,33 +1157,33 @@ module Ecore
   # X Window Focus Functions
   # http://localhost/ecore/group__Ecore__X__Window__Focus__Functions.html
 
-#  soft_attach 1.1, :ecore_x_window_focus, [EcoreXWindow], :void
-#  soft_attach 1.1, :ecore_x_window_focus_at_time, [EcoreXWindow, EcoreXTime], :void
-#  soft_attach 1.1, :ecore_x_window_focus_get, [], EcoreXWindow
+#  soft_attach 1.2, :ecore_x_window_focus, [EcoreXWindow], :void
+#  soft_attach 1.2, :ecore_x_window_focus_at_time, [EcoreXWindow, EcoreXTime], :void
+#  soft_attach 1.2, :ecore_x_window_focus_get, [], EcoreXWindow
 
 
 
   # X Window Z Order Functions
   # http://localhost/ecore/group__Ecore__X__Window__Z__Order__Group.html
 
-#  soft_attach 1.1, :ecore_x_window_lower, [EcoreXWindow], :void
-#  soft_attach 1.1, :ecore_x_window_raise, [EcoreXWindow], :void
+#  soft_attach 1.2, :ecore_x_window_lower, [EcoreXWindow], :void
+#  soft_attach 1.2, :ecore_x_window_raise, [EcoreXWindow], :void
 
 
 
   # X Window Parent Functions
   # http://localhost/ecore/group__Ecore__X__Window__Parent__Group.html
 
-#  soft_attach 1.1, :ecore_x_window_parent_get, [EcoreXWindow], EcoreXWindow
-#  soft_attach 1.1, :ecore_x_window_reparent, [EcoreXWindow, EcoreXWindow, :int, :int], :void
+#  soft_attach 1.2, :ecore_x_window_parent_get, [EcoreXWindow], EcoreXWindow
+#  soft_attach 1.2, :ecore_x_window_reparent, [EcoreXWindow, EcoreXWindow, :int, :int], :void
 
 
 
   # X Window Shape Functions
   # http://localhost/ecore/group__Ecore__X__Window__Shape.html
 
-#  soft_attach 1.1, :ecore_x_window_shape_input_mask_set, [EcoreXWindow, EcoreXPixmap], :void
-#  soft_attach 1.1, :ecore_x_window_shape_mask_set, [EcoreXWindow, EcoreXPixmap], :void
+#  soft_attach 1.2, :ecore_x_window_shape_input_mask_set, [EcoreXWindow, EcoreXPixmap], :void
+#  soft_attach 1.2, :ecore_x_window_shape_mask_set, [EcoreXWindow, EcoreXPixmap], :void
 
 
 end

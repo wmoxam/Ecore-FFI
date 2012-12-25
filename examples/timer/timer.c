@@ -1,3 +1,5 @@
+// From: http://docs.enlightenment.org/auto/ecore/Ecore_Main_Loop_Page.html
+
 #include <Ecore.h>
 
 Ecore_Timer         *timer1     = NULL;
