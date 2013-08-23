@@ -1,6 +1,7 @@
 #!/usr/bin/ruby
 
-require '../ecore'
+$LOAD_PATH.unshift(File.dirname(__FILE__) + "/../..")
+require 'ecore'
 
 TimerCallback = Proc.new do
   puts "Tick timer. Sec: #{'%3.2f' % (Ecore::ecore_time_get - START_TIME)}"
