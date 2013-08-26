@@ -88,14 +88,7 @@ module Ecore
 
   EcoreXWindowConfigureMask = enum(:x, :y, :w, :h, :border_width, :sibling, :stack_mode)
 
-  # Ecore initialization and shutdown functions
-  # http://localhost/ecore/group__Ecore__Init__Group.html
-
-  attach_function :ecore_init, [], :int
-  attach_function :ecore_shutdown, [], :int
-
   # Main Loop and Job Functions
-  # http://localhost/ecore/group__Ecore__Group.html
   callback :ecore_data_cb, [:pointer], :pointer
   callback :ecore_filter_cb, [:pointer, :pointer, :int, :pointer], :int
   callback :ecore_end_cb, [:pointer, :pointer], :void 
@@ -114,23 +107,22 @@ module Ecore
   callback :eina_free_cb, [:pointer], :pointer
   callback :ecore_cb, [:pointer], :pointer
 
+  # Ecore initialization and shutdown functions
+
+  attach_function :ecore_init, [], :int
+  attach_function :ecore_shutdown, [], :int
+
   # Ecore Job Functions
-  # http://localhost/ecore/group__Ecore__Job__Group.html
 
   attach_function :ecore_job_add, [:ecore_cb, :pointer], :pointer
   attach_function :ecore_job_del, [:pointer], :pointer
 
-  # Ecore Idle Functions
-  # http://localhost/ecore/group__Ecore__Idle__Group.html
-
   # Ecore Throttle functions
-  # http://localhost/ecore/group__Ecore__Throttle__Group.html
 
   attach_function :ecore_throttle_adjust, [:double], :void
   attach_function :ecore_throttle_get, [], :double
 
   # Ecore Animator functions
-  # http://localhost/ecore/group__Ecore__Animator__Group.html
 
   attach_function :ecore_animator_add, [:ecore_task_cb, :pointer], :pointer
   attach_function :ecore_animator_custom_source_tick_begin_callback_set, [:ecore_cb, :pointer], :void
@@ -153,14 +145,12 @@ module Ecore
 
 
   # Ecore Application functions
-  # http://localhost/ecore/group__Ecore__Application__Group.html
 
   attach_function :ecore_app_args_get, [:pointer, :pointer], :void
   attach_function :ecore_app_args_set, [:int, :pointer], :void
   attach_function :ecore_app_restart, [], :void
 
   # Ecore Event functions
-  # http://localhost/ecore/group__Ecore__Event__Group.html
 
   attach_function :ecore_event_add, [:int, :pointer, :ecore_end_cb, :pointer], :pointer
   attach_function :ecore_event_current_event_get, [], :pointer
@@ -183,7 +173,6 @@ module Ecore
 
   
   # Process Spawning Functions
-  # http://localhost/ecore/group__Ecore__Exe__Group.html
 
   attach_function :ecore_exe_auto_limits_set, [:pointer, :int, :int, :int, :int], :void
   attach_function :ecore_exe_callback_pre_free_set, [:pointer, :ecore_exe_cb], :void
@@ -216,7 +205,6 @@ module Ecore
   callback :exe_cb, [:pointer, :pointer], :pointer
 
   # Ecore Timer functions
-  # http://localhost/ecore/group__Ecore__Timer__Group.html
 
   attach_function :ecore_timer_add, [:double, :ecore_task_cb, :pointer], :pointer
   attach_function :ecore_timer_del, [:pointer], :pointer
@@ -233,7 +221,6 @@ module Ecore
 
 
   # Ecore Main Loop functions
-  # http://localhost/ecore/group__Ecore__Main__Loop__Group.html
 
   attach_function :ecore_main_fd_handler_active_get, [:pointer, EcoreFdHandlerFlags], :bool
   attach_function :ecore_main_fd_handler_active_set, [:pointer, EcoreFdHandlerFlags], :void
@@ -258,7 +245,6 @@ module Ecore
   callback :ecore_select_function, [:int, :pointer, :pointer, :pointer, :pointer], :pointer
 
   # File Event Handling Functions
-  # http://localhost/ecore/group__Ecore__FD__Handler__Group.html
 
   attach_function :ecore_main_fd_handler_active_get, [:pointer, EcoreFdHandlerFlags], :bool
   attach_function :ecore_main_fd_handler_active_set, [:pointer, EcoreFdHandlerFlags], :void
@@ -272,7 +258,6 @@ module Ecore
 
 
   # Ecore Idle functions
-  # http://localhost/ecore/group__Ecore__Idle__Group.html
 
   attach_function :ecore_idle_enterer_add, [:ecore_task_cb, :pointer], :pointer
   attach_function :ecore_idle_enterer_before_add, [:ecore_task_cb, :pointer], :pointer
@@ -286,7 +271,6 @@ module Ecore
 
 
   # Pipe wrapper
-  # http://localhost/ecore/group__Ecore__Pipe__Group.html
 
   attach_function :ecore_pipe_add, [:ecore_pipe_cb, :pointer], :pointer
   attach_function :ecore_pipe_del, [:pointer], :pointer
@@ -299,7 +283,6 @@ module Ecore
 
 
   # Ecore Poll functions
-  # http://localhost/ecore/group__Ecore__Poller__Group.html
 
   attach_function :ecore_poller_add, [EcorePollerType, :int, :ecore_task_cb, :pointer], :pointer
   attach_function :ecore_poller_del, [:pointer], :pointer
@@ -311,7 +294,6 @@ module Ecore
 
 
   # Ecore Thread functions
-  # http://localhost/ecore/group__Ecore__Thread__Group.html
 
   attach_function :ecore_thread_active_get, [], :int
   attach_function :ecore_thread_available_get, [], :int
@@ -340,7 +322,6 @@ module Ecore
 
 
   # Ecore Time functions
-  # http://localhost/ecore/group__Ecore__Time__Group.html
 
   attach_function :ecore_loop_time_get, [], :double
   attach_function :ecore_time_get, [], :double
