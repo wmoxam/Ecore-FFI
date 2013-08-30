@@ -1,7 +1,2 @@
-source :rubygems
-
-gem 'ffi'
-
-group :test do
-  gem 'rspec'
-end
+source 'https://rubygems.org'
+gemspec
